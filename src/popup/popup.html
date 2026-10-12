@@ -6,25 +6,64 @@
     <script type="module" src="popup.js"></script>
   </head>
   <body>
-    <header>
+    <header class="section-head">
       <span class="title">Parameters</span>
-      <span class="count" id="count"></span>
+      <span class="badge" id="count"></span>
     </header>
-    <p class="empty" id="empty" hidden>This page has no query parameters.</p>
+    <p class="empty" id="empty" hidden>No query parameters on this page.</p>
     <div class="rows" id="rows"></div>
-    <footer>
+
+    <section class="groups" id="groups" hidden>
+      <header class="section-head">
+        <span class="title">Groups</span>
+        <span class="site" id="site"></span>
+      </header>
+      <ol class="group-list" id="group-list"></ol>
+    </section>
+
+    <p class="status" id="status" role="status" hidden></p>
+
+    <footer id="footer">
       <button type="button" class="link" id="add">+ Add parameter</button>
       <span class="spacer"></span>
+      <button type="button" id="save-group">Save group</button>
       <button type="button" id="copy">Copy URL</button>
       <button type="button" class="primary" id="apply" disabled>Apply</button>
     </footer>
-    <template id="row">
+
+    <form class="save-bar" id="save-form" hidden>
+      <input
+        id="group-name"
+        placeholder="Group name"
+        maxlength="40"
+        spellcheck="false"
+        autocomplete="off"
+        aria-label="Group name"
+      />
+      <button type="button" id="cancel-save">Cancel</button>
+      <button type="submit" class="primary" id="confirm-save" disabled>Save</button>
+    </form>
+
+    <template id="row-template">
       <div class="row">
+        <input type="checkbox" class="pick" aria-label="Include in group" />
         <input class="key" spellcheck="false" autocomplete="off" aria-label="Key" />
         <span class="equals">=</span>
         <input class="value" spellcheck="false" autocomplete="off" aria-label="Value" />
         <button type="button" class="remove" aria-label="Remove parameter" title="Remove">×</button>
       </div>
+    </template>
+
+    <template id="group-template">
+      <li class="group">
+        <button type="button" class="group-apply">
+          <kbd class="shortcut"></kbd>
+          <span class="group-name"></span>
+          <span class="group-params"></span>
+          <span class="group-active" title="Already on this page">✓</span>
+        </button>
+        <button type="button" class="group-delete" aria-label="Delete group" title="Delete">×</button>
+      </li>
     </template>
   </body>
 </html>
