@@ -121,8 +121,22 @@ function matchingPresets(site, presets) {
   );
 }
 
+// The list is rebuilt after every change, including the storage event that
+// follows this page's own writes, so the focused preset is put back each time.
+let pendingFocus = null;
+
+function focusedPreset() {
+  const item = document.activeElement?.closest?.("#sites .preset");
+  if (!item) return null;
+  return { site: item.parentElement.dataset.site, index: [...item.parentElement.children].indexOf(item) };
+}
+
 async function showPresets() {
   const bySite = await loadAllPresets();
+  // Read after the load: another render may have finished meanwhile and
+  // already moved the focus to where it belongs.
+  const focus = pendingFocus ?? focusedPreset();
+  pendingFocus = null;
   const sites = Object.keys(bySite).sort(siteOrder);
   noPresetsEl.hidden = sites.length > 0;
   searchInput.hidden = sites.length === 0;
@@ -149,21 +163,23 @@ async function showPresets() {
       return element;
     }),
   );
+
+  if (focus) {
+    const list = [...sitesEl.querySelectorAll(".preset-list")].find((element) => element.dataset.site === focus.site);
+    list?.children[focus.index]?.querySelector(".delete").focus();
+  }
 }
 
 async function movePresetOf(site, presets, from, to) {
-  const keyboard = sitesEl.contains(document.activeElement);
+  if (sitesEl.contains(document.activeElement)) pendingFocus = { site, index: to };
   try {
     await savePresets(site, movePreset(presets, from, to));
   } catch (error) {
+    pendingFocus = null;
     showStatus(t("saveFailed", errorText(error)), { error: true });
     return;
   }
   await showPresets();
-  if (keyboard) {
-    const list = [...sitesEl.querySelectorAll(".preset-list")].find((element) => element.dataset.site === site);
-    list?.children[to]?.querySelector(".delete").focus();
-  }
 }
 
 searchInput.addEventListener("input", () => {

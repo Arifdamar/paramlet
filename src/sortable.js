@@ -59,19 +59,23 @@ export function makeSortable(list, { grip, group = () => "", enabled = () => tru
         other.style.transform = shift === 0 ? "" : `translateY(${shift}px)`;
       });
     };
+    // Every listener of this drag goes away with it, whichever event ends it,
+    // so nothing is left on the handle for the next drag.
+    const drag = new AbortController();
     const end = () => {
-      handle.removeEventListener("pointermove", move);
+      drag.abort();
       for (const element of items) element.style.transform = "";
       item.classList.remove("dragging");
       list.classList.remove("sorting");
       if (to !== from) onMove(from, to, key);
     };
-    handle.addEventListener("pointermove", move);
-    handle.addEventListener("pointerup", end, { once: true });
+    const { signal } = drag;
+    handle.addEventListener("pointermove", move, { signal });
+    handle.addEventListener("pointerup", end, { signal });
     handle.addEventListener("pointercancel", () => {
       to = from;
       end();
-    }, { once: true });
+    }, { signal });
   });
 
   list.addEventListener("keydown", (event) => {
