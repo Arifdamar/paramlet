@@ -1,0 +1,17 @@
+{
+  "name": "paramlet",
+  "version": "0.1.0",
+  "description": "See and edit a page's query parameters from the address bar.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "lint": "web-ext lint",
+    "start": "web-ext run",
+    "build": "web-ext build --overwrite-dest"
+  },
+  "devDependencies": {
+    "web-ext": "^10.7.0"
+  }
+}
