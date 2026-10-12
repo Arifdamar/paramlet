@@ -2,7 +2,10 @@ export default {
   ignoreFiles: [
     "test",
     "docs",
+    "scripts",
+    "dist",
     ".github",
+    "icons/*.png",
     "package.json",
     "package-lock.json",
     "web-ext-config.mjs",
@@ -10,5 +13,6 @@ export default {
   ],
   build: {
     overwriteDest: true,
+    filename: "paramlet-{version}-firefox.zip",
   },
 };
