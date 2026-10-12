@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0
+
+- Works in Chrome, Edge, Brave and Opera. These browsers don't allow buttons
+  inside the address bar, so there the button is in the toolbar and is turned
+  off on browser pages like `chrome://settings`. `npm run build` makes a
+  separate zip for them.
+- On Chromium browsers, Change shortcut on the settings page opens the
+  browser's shortcuts page.
+- The settings page no longer says presets sync through a Mozilla account,
+  since that depends on the browser.
+
 ## 1.1.2
 
 - Plainer wording in the readme and in a few messages. Messages that name a
