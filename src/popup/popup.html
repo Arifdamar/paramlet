@@ -14,7 +14,18 @@
       <button type="button" class="link" id="remove-tracking" data-i18n-title="removeTrackingTitle" hidden></button>
       <button type="button" class="icon-button" id="settings" data-i18n-title="settings" data-i18n-aria-label="settings">⚙</button>
     </header>
+    <div class="search-bar" id="search-bar" hidden>
+      <input
+        type="search"
+        id="search"
+        spellcheck="false"
+        autocomplete="off"
+        data-i18n-placeholder="searchPopup"
+        data-i18n-aria-label="searchPopup"
+      />
+    </div>
     <p class="empty" id="empty" data-i18n="noParameters" hidden></p>
+    <p class="empty" id="no-matches" data-i18n="noMatches" hidden></p>
     <div class="rows" id="rows"></div>
 
     <section class="fragment" id="fragment" hidden>

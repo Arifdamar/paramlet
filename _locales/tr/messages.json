@@ -151,5 +151,14 @@
   },
   "importFailed": {
     "message": "İçe aktarılamadı: $1"
+  },
+  "searchPopup": {
+    "message": "Parametre ve preset ara  ( / )"
+  },
+  "searchPresets": {
+    "message": "Site ve preset ara"
+  },
+  "noMatches": {
+    "message": "Eşleşme yok."
   }
 }

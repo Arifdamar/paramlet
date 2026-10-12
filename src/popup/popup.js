@@ -9,7 +9,10 @@ const $ = (id) => document.getElementById(id);
 const countEl = $("count");
 const removeTrackingButton = $("remove-tracking");
 const settingsButton = $("settings");
+const searchBarEl = $("search-bar");
+const searchInput = $("search");
 const emptyEl = $("empty");
+const noMatchesEl = $("no-matches");
 const rowsEl = $("rows");
 const fragmentEl = $("fragment");
 const fragmentCountEl = $("fragment-count");
@@ -33,6 +36,13 @@ const rowTemplate = $("row-template");
 const presetTemplate = $("preset-template");
 
 const SHORTCUTS = 9;
+// The search field appears once any list is this long.
+const SEARCH_THRESHOLD = 8;
+// Firefox caps a panel at 600px; past that the whole panel would scroll and
+// the buttons would leave the screen. The lists share what is left instead.
+const PANEL_MAX_HEIGHT = 600;
+// No list is squeezed below this while it has content to show (about two rows).
+const LIST_MIN_HEIGHT = 58;
 
 const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
 const parsed = parseUrl(tab.url);
@@ -44,17 +54,22 @@ const site = siteOf(tab.url);
 const toRows = (params) => params.map((param) => ({ source: param, key: param.key, value: param.value }));
 const rows = toRows(parsed.params);
 const fragmentRows = parsed.hashParams === null ? null : toRows(parsed.hashParams);
-const pickers = new Map(); // row -> its "include in preset" checkbox
+const elements = new Map(); // row -> its element
 
 // Saved presets: this site's, and those for every site.
 const presetsBySite = { [site]: [], [ALL_SITES]: [] };
 let entries = []; // { preset, scope }, in the order shown
 let saving = false;
+let filter = "";
 
 const isVisible = (row) => row.source === null || row.source.raw !== "";
 const editedUrl = () => buildUrl(parsed, rows, fragmentRows ?? undefined);
 const rowLists = () => (fragmentRows === null ? [rows] : [rows, fragmentRows]);
 const wantsNewTab = (event) => event.ctrlKey || event.metaKey;
+const pickerOf = (row) => elements.get(row)?.querySelector(".pick");
+
+const describeParams = (params) =>
+  params.map(({ key, value }) => (value === "" ? key : `${key}=${value}`)).join("  ");
 
 // ---- Status line -----------------------------------------------------------
 
@@ -65,7 +80,13 @@ function showStatus(message, { error = false } = {}) {
   statusEl.textContent = message;
   statusEl.classList.toggle("error", error);
   statusEl.hidden = false;
-  if (!error) statusTimer = setTimeout(() => (statusEl.hidden = true), 2500);
+  fitLists();
+  if (!error) {
+    statusTimer = setTimeout(() => {
+      statusEl.hidden = true;
+      fitLists();
+    }, 2500);
+  }
 }
 
 const errorText = (error) => error?.message ?? String(error);
@@ -74,13 +95,86 @@ function storageErrorMessage(error) {
   return /quota/i.test(errorText(error)) ? t("quotaFull") : t("saveFailed", errorText(error));
 }
 
+// ---- Layout ----------------------------------------------------------------
+
+/**
+ * Splits the height left under PANEL_MAX_HEIGHT between the three lists: a
+ * short list gets all it needs, and the long ones share the rest equally and
+ * scroll inside.
+ */
+function fitLists() {
+  const lists = [rowsEl, fragmentRowsEl, presetListEl];
+  const listsHeight = lists.reduce((sum, list) => sum + list.offsetHeight, 0);
+  let remaining = PANEL_MAX_HEIGHT - (document.body.offsetHeight - listsHeight);
+
+  const wanted = lists
+    .map((list) => ({ list, height: list.offsetParent === null ? 0 : list.scrollHeight }))
+    .sort((a, b) => a.height - b.height);
+  wanted.forEach(({ list, height }, index) => {
+    const share = remaining / (wanted.length - index);
+    const given = Math.max(Math.min(height, share), Math.min(height, LIST_MIN_HEIGHT));
+    list.style.maxHeight = `${Math.floor(given)}px`;
+    remaining -= given;
+  });
+}
+
+// ---- Search ----------------------------------------------------------------
+
+const includesFilter = (text) => text.toLowerCase().includes(filter);
+// Rows added in this panel always stay in view, so a new row never vanishes
+// under an active search.
+const rowMatches = (row) =>
+  filter === "" || row.source === null || includesFilter(row.key) || includesFilter(row.value);
+const presetMatches = (preset) =>
+  filter === "" || includesFilter(preset.name) || includesFilter(describeParams(preset.params));
+
+/** Shows only the rows and presets that match the search. */
+function applyFilter() {
+  for (const list of rowLists()) {
+    for (const row of list) {
+      const element = elements.get(row);
+      if (element) element.hidden = !rowMatches(row);
+    }
+  }
+  entries.forEach(({ preset }, index) => {
+    presetListEl.children[index].hidden = !presetMatches(preset);
+  });
+  refresh();
+}
+
+function setFilter(text) {
+  searchInput.value = text;
+  filter = text.trim().toLowerCase();
+  applyFilter();
+}
+
+searchInput.addEventListener("input", () => setFilter(searchInput.value));
+
 // ---- Shared state ----------------------------------------------------------
+
+const shownCount = (list) => list.filter((row) => !elements.get(row)?.hidden).length;
+const countLabel = (shown, total) => (filter === "" ? String(total) : `${shown} / ${total}`);
 
 function refresh() {
   const visible = rows.filter(isVisible);
-  countEl.textContent = String(visible.length);
+  const shownRows = shownCount(visible);
+  countEl.textContent = countLabel(shownRows, visible.length);
   emptyEl.hidden = visible.length > 0;
-  if (fragmentRows !== null) fragmentCountEl.textContent = String(fragmentRows.filter(isVisible).length);
+
+  let shownFragment = 0;
+  if (fragmentRows !== null) {
+    const visibleFragment = fragmentRows.filter(isVisible);
+    shownFragment = shownCount(visibleFragment);
+    fragmentCountEl.textContent = countLabel(shownFragment, visibleFragment.length);
+    fragmentEl.hidden = filter !== "" && shownFragment === 0;
+  }
+
+  const shownPresets = entries.filter(({ preset }) => presetMatches(preset)).length;
+  presetsEl.hidden = shownPresets === 0;
+  noMatchesEl.hidden = filter === "" || shownRows + shownFragment + shownPresets > 0;
+
+  const longest = Math.max(visible.length, fragmentRows?.filter(isVisible).length ?? 0, entries.length);
+  searchBarEl.hidden = saving || (filter === "" && longest < SEARCH_THRESHOLD);
 
   applyButton.disabled = editedUrl() === tab.url;
   savePresetButton.disabled = !visible.some((row) => row.key !== "");
@@ -92,6 +186,7 @@ function refresh() {
   entries.forEach((entry, index) => {
     presetListEl.children[index]?.classList.toggle("active", containsParams(rows, entry.preset.params));
   });
+  fitLists();
 }
 
 async function open(url, { newTab = false } = {}) {
@@ -104,35 +199,32 @@ async function open(url, { newTab = false } = {}) {
 
 function removeRow(row, list) {
   list.splice(list.indexOf(row), 1);
-  pickers.delete(row);
-  document.querySelector(`[data-row="${row.id}"]`).remove();
+  elements.get(row).remove();
+  elements.delete(row);
 }
-
-let nextRowId = 0;
 
 /** Adds a row's inputs to `container`, before `before` or at the end. */
 function showRow(row, list, container, before = null) {
-  row.id ??= nextRowId++;
   const element = rowTemplate.content.firstElementChild.cloneNode(true);
   const keyInput = element.querySelector(".key");
   const valueInput = element.querySelector(".value");
   const picker = element.querySelector(".pick");
-  element.dataset.row = String(row.id);
+  elements.set(row, element);
 
+  const showTracking = () => {
+    const tracking = isTrackingKey(row.key);
+    keyInput.classList.toggle("tracking", tracking);
+    keyInput.title = tracking ? t("trackingParameter") : row.key;
+  };
   const show = () => {
     keyInput.value = row.key;
     valueInput.value = row.value;
     valueInput.title = row.value;
     showTracking();
   };
-  const showTracking = () => {
-    const tracking = isTrackingKey(row.key);
-    keyInput.classList.toggle("tracking", tracking);
-    keyInput.title = tracking ? t("trackingParameter") : "";
-  };
   show();
   picker.checked = true;
-  if (list === rows) pickers.set(row, picker);
+  element.hidden = !rowMatches(row);
 
   keyInput.addEventListener("input", () => {
     row.key = keyInput.value;
@@ -185,8 +277,8 @@ addButton.addEventListener("click", () => {
   const row = { source: null, key: "", value: "" };
   rows.push(row);
   showRow(row, rows, rowsEl).querySelector(".key").focus();
-  rowsEl.scrollTop = rowsEl.scrollHeight;
   refresh();
+  rowsEl.scrollTop = rowsEl.scrollHeight;
 });
 
 removeTrackingButton.addEventListener("click", () => {
@@ -213,9 +305,6 @@ settingsButton.addEventListener("click", async () => {
 
 // ---- Presets ---------------------------------------------------------------
 
-const describeParams = (params) =>
-  params.map(({ key, value }) => (value === "" ? key : `${key}=${value}`)).join("  ");
-
 function applyPreset(preset, options) {
   open(buildUrl(parsed, mergeParams(rows, preset.params), fragmentRows ?? undefined), options);
 }
@@ -236,13 +325,17 @@ function presetElement({ preset, scope }, index) {
   const element = presetTemplate.content.firstElementChild.cloneNode(true);
   const applyPresetButton = element.querySelector(".preset-apply");
   const deleteButton = element.querySelector(".delete");
-  const summary = describeParams(preset.params);
 
   element.querySelector(".shortcut").textContent = index < SHORTCUTS ? String(index + 1) : "";
   element.querySelector(".preset-name").textContent = preset.name;
-  element.querySelector(".params-summary").textContent = summary;
+  element.querySelector(".params-summary").textContent = describeParams(preset.params);
   element.querySelector(".scope").hidden = scope !== ALL_SITES;
-  applyPresetButton.title = `${preset.name}: ${summary}`;
+  element.hidden = !presetMatches(preset);
+  // One parameter per line, so a long preset can be read in full on hover.
+  applyPresetButton.title = [
+    preset.name,
+    ...preset.params.map(({ key, value }) => (value === "" ? key : `${key}=${value}`)),
+  ].join("\n");
   applyPresetButton.addEventListener("click", (event) =>
     applyPreset(preset, { newTab: wantsNewTab(event) }),
   );
@@ -273,15 +366,20 @@ function renderPresets() {
     ...(site === "" ? [] : presetsBySite[site].map((preset) => ({ preset, scope: site }))),
     ...presetsBySite[ALL_SITES].map((preset) => ({ preset, scope: ALL_SITES })),
   ];
-  presetsEl.hidden = entries.length === 0;
   presetListEl.replaceChildren(...entries.map(presetElement));
   refresh();
 }
 
-// Number keys apply presets, but never while the user is typing.
+// Number keys apply presets and "/" jumps to the search, but never while the
+// user is typing.
 document.addEventListener("keydown", (event) => {
   if (saving || event.target.closest?.("input, textarea")) return;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
+  if (event.key === "/" && !searchBarEl.hidden) {
+    event.preventDefault();
+    searchInput.focus();
+    return;
+  }
   if (!/^[1-9]$/.test(event.key)) return;
   const entry = entries[Number(event.key) - 1];
   if (entry) {
@@ -294,7 +392,7 @@ document.addEventListener("keydown", (event) => {
 
 const pickedParams = () =>
   rows
-    .filter((row) => pickers.get(row)?.checked && row.key !== "")
+    .filter((row) => pickerOf(row)?.checked && row.key !== "")
     .map(({ key, value }) => ({ key, value }));
 
 function updateSaveButton() {
@@ -302,18 +400,21 @@ function updateSaveButton() {
 }
 
 function setSaving(on) {
+  // Every row has to be in view to be picked, so saving clears the search.
+  if (on && filter !== "") setFilter("");
   saving = on;
   document.body.classList.toggle("saving", on);
   footerEl.hidden = on;
   saveForm.hidden = !on;
   if (on) {
-    for (const picker of pickers.values()) picker.checked = true;
+    for (const row of rows) if (pickerOf(row)) pickerOf(row).checked = true;
     presetNameInput.value = "";
     allSitesInput.checked = site === "";
     allSitesInput.disabled = site === "";
     updateSaveButton();
     presetNameInput.focus();
   }
+  refresh();
 }
 
 savePresetButton.addEventListener("click", () => setSaving(true));
@@ -341,10 +442,12 @@ for (const row of rows) if (isVisible(row)) showRow(row, rows, rowsEl);
 if (fragmentRows !== null) {
   fragmentEl.hidden = false;
   fragmentPrefixEl.textContent = parsed.hashPrefix;
+  fragmentPrefixEl.title = parsed.hashPrefix;
   for (const row of fragmentRows) if (isVisible(row)) showRow(row, fragmentRows, fragmentRowsEl);
 }
 
 siteEl.textContent = site;
+siteEl.title = site;
 try {
   const [own, everywhere] = await Promise.all([
     site === "" ? [] : loadPresets(site),

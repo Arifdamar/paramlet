@@ -61,10 +61,20 @@ section {
 
 /* Parameter rows */
 
+/* Heights of .rows and .preset-list are set by fitLists() in popup.js. */
 .rows {
-  max-height: 260px;
   overflow-y: auto;
   padding: 0 6px;
+}
+
+.search-bar {
+  padding: 2px 12px 6px;
+}
+
+.search-bar input {
+  border-color: var(--line);
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
 }
 
 .row {
@@ -169,7 +179,6 @@ body.saving #remove-tracking {
 /* Presets */
 
 .preset-list {
-  max-height: 200px;
   margin: 0;
   padding: 0 6px 2px;
   overflow-y: auto;

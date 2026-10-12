@@ -151,5 +151,14 @@
   },
   "importFailed": {
     "message": "Could not import: $1"
+  },
+  "searchPopup": {
+    "message": "Search parameters and presets  ( / )"
+  },
+  "searchPresets": {
+    "message": "Search sites and presets"
+  },
+  "noMatches": {
+    "message": "No matches."
   }
 }
