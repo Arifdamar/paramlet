@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Paramlet",
-  "version": "0.2.0",
-  "description": "See, edit and save a page's query parameters from the address bar.",
+  "version": "1.0.0",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "en",
+  "homepage_url": "https://github.com/Arifdamar/paramlet",
   "icons": {
     "48": "icons/paramlet.svg",
     "96": "icons/paramlet.svg"
@@ -18,10 +20,14 @@
     "default_popup": "src/popup/popup.html",
     "show_matches": ["http://*/*", "https://*/*"]
   },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
   "commands": {
     "_execute_page_action": {
       "suggested_key": { "default": "Alt+Q", "mac": "MacCtrl+Q" },
-      "description": "Open the parameter panel"
+      "description": "__MSG_commandDescription__"
     }
   },
   "browser_specific_settings": {
