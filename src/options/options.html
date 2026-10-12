@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title data-i18n="optionsTitle"></title>
+    <link rel="stylesheet" href="../theme.css" />
+    <link rel="stylesheet" href="options.css" />
+    <script type="module" src="options.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>Paramlet</h1>
+
+      <section>
+        <h2 data-i18n="shortcutHeading"></h2>
+        <p class="shortcut-line">
+          <span data-i18n="shortcutCurrent"></span>
+          <kbd id="shortcut"></kbd>
+          <button type="button" id="change-shortcut" data-i18n="changeShortcut" hidden></button>
+        </p>
+        <p class="help" id="shortcut-help" data-i18n="shortcutHelp" hidden></p>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2 data-i18n="presets"></h2>
+          <span class="spacer"></span>
+          <button type="button" id="export" data-i18n="exportPresets"></button>
+          <button type="button" id="import" data-i18n="importPresets"></button>
+          <input type="file" id="import-file" accept=".json,application/json" hidden />
+        </div>
+        <p class="help" data-i18n="presetsHelp"></p>
+        <p class="help" data-i18n="exportImportHelp"></p>
+        <p class="status" id="status" role="status" hidden></p>
+        <p class="empty" id="no-presets" data-i18n="noPresets" hidden></p>
+        <div id="sites"></div>
+      </section>
+    </main>
+
+    <template id="site-template">
+      <div class="site">
+        <h3 class="site-name"></h3>
+        <ul class="preset-list"></ul>
+      </div>
+    </template>
+
+    <template id="preset-template">
+      <li class="preset">
+        <span class="preset-name"></span>
+        <span class="params-summary"></span>
+        <button type="button" class="delete" data-i18n="deletePreset"></button>
+      </li>
+    </template>
+  </body>
+</html>

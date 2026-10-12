@@ -1,0 +1,108 @@
+body {
+  font-size: 14px;
+}
+
+main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+h1 {
+  margin: 0 0 24px;
+  font-size: 22px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+section {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.help,
+.empty {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.status {
+  margin: 12px 0 0;
+}
+
+.shortcut-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+kbd {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--field);
+  font: 13px var(--mono);
+}
+
+.site {
+  margin-top: 20px;
+}
+
+h3 {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font: 600 12px var(--mono);
+}
+
+.preset-list {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  list-style: none;
+}
+
+.preset {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 12px;
+}
+
+.preset + .preset {
+  border-top: 1px solid var(--line);
+}
+
+.preset-name {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset .params-summary {
+  flex: 1;
+  font-size: 12px;
+}
+
+.preset .delete {
+  padding: 3px 10px;
+  font-size: 12px;
+}
