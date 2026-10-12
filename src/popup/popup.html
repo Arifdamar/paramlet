@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+    <script type="module" src="popup.js"></script>
+  </head>
+  <body>
+    <header>
+      <span class="title">Parameters</span>
+      <span class="count" id="count"></span>
+    </header>
+    <p class="empty" id="empty" hidden>This page has no query parameters.</p>
+    <div class="rows" id="rows"></div>
+    <footer>
+      <button type="button" class="link" id="add">+ Add parameter</button>
+      <span class="spacer"></span>
+      <button type="button" id="copy">Copy URL</button>
+      <button type="button" class="primary" id="apply" disabled>Apply</button>
+    </footer>
+    <template id="row">
+      <div class="row">
+        <input class="key" spellcheck="false" autocomplete="off" aria-label="Key" />
+        <span class="equals">=</span>
+        <input class="value" spellcheck="false" autocomplete="off" aria-label="Value" />
+        <button type="button" class="remove" aria-label="Remove parameter" title="Remove">×</button>
+      </div>
+    </template>
+  </body>
+</html>
