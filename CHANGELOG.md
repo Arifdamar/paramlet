@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1
+
+- Settings page: after moving a preset with <kbd>Alt</kbd>+<kbd>↑</kbd> /
+  <kbd>Alt</kbd>+<kbd>↓</kbd>, focus stays on it, so the keys can be pressed
+  again to keep moving it.
+- Dragging a preset no longer leaves event listeners behind on its handle.
+
 ## 1.1.0
 
 - Drag presets by their handle to reorder them, in the panel or on the
