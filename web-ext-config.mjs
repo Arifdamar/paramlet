@@ -1,5 +1,12 @@
 export default {
-  ignoreFiles: ["test", "package.json", "package-lock.json", "web-ext-config.mjs"],
+  ignoreFiles: [
+    "test",
+    ".github",
+    "package.json",
+    "package-lock.json",
+    "web-ext-config.mjs",
+    "CHANGELOG.md",
+  ],
   build: {
     overwriteDest: true,
   },
