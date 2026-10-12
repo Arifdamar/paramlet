@@ -1,22 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="../theme.css" />
     <link rel="stylesheet" href="popup.css" />
     <script type="module" src="popup.js"></script>
   </head>
   <body>
     <header class="section-head">
-      <span class="title">Parameters</span>
+      <span data-i18n="parameters"></span>
       <span class="badge" id="count"></span>
+      <span class="spacer"></span>
+      <button type="button" class="link" id="remove-tracking" data-i18n-title="removeTrackingTitle" hidden></button>
+      <button type="button" class="icon-button" id="settings" data-i18n-title="settings" data-i18n-aria-label="settings">⚙</button>
     </header>
-    <p class="empty" id="empty" hidden>No query parameters on this page.</p>
+    <p class="empty" id="empty" data-i18n="noParameters" hidden></p>
     <div class="rows" id="rows"></div>
 
-    <section class="presets" id="presets" hidden>
+    <section class="fragment" id="fragment" hidden>
       <header class="section-head">
-        <span class="title">Presets</span>
-        <span class="site" id="site"></span>
+        <span data-i18n="fragmentParameters"></span>
+        <span class="badge" id="fragment-count"></span>
+        <span class="detail" id="fragment-prefix"></span>
+      </header>
+      <div class="rows" id="fragment-rows"></div>
+    </section>
+
+    <section id="presets" hidden>
+      <header class="section-head">
+        <span data-i18n="presets"></span>
+        <span class="detail" id="site"></span>
       </header>
       <ol class="preset-list" id="preset-list"></ol>
     </section>
@@ -24,33 +37,38 @@
     <p class="status" id="status" role="status" hidden></p>
 
     <footer id="footer">
-      <button type="button" class="link" id="add">+ Add parameter</button>
+      <button type="button" class="link" id="add" data-i18n="addParameter"></button>
       <span class="spacer"></span>
-      <button type="button" id="save-preset">Save preset</button>
-      <button type="button" id="copy">Copy URL</button>
-      <button type="button" class="primary" id="apply" disabled>Apply</button>
+      <button type="button" id="save-preset" data-i18n="savePreset"></button>
+      <button type="button" id="copy" data-i18n="copyUrl"></button>
+      <button type="button" class="primary" id="apply" data-i18n="apply" data-i18n-title="applyTitle" disabled></button>
     </footer>
 
     <form class="save-bar" id="save-form" hidden>
       <input
+        type="text"
         id="preset-name"
-        placeholder="Preset name"
         maxlength="40"
         spellcheck="false"
         autocomplete="off"
-        aria-label="Preset name"
+        data-i18n-placeholder="presetName"
+        data-i18n-aria-label="presetName"
       />
-      <button type="button" id="cancel-save">Cancel</button>
-      <button type="submit" class="primary" id="confirm-save" disabled>Save</button>
+      <label class="scope-toggle">
+        <input type="checkbox" id="all-sites" />
+        <span data-i18n="allSites"></span>
+      </label>
+      <button type="button" id="cancel-save" data-i18n="cancel"></button>
+      <button type="submit" class="primary" id="confirm-save" data-i18n="save" disabled></button>
     </form>
 
     <template id="row-template">
       <div class="row">
-        <input type="checkbox" class="pick" aria-label="Include in preset" />
-        <input class="key" spellcheck="false" autocomplete="off" aria-label="Key" />
+        <input type="checkbox" class="pick" data-i18n-aria-label="includeInPreset" />
+        <input class="key" spellcheck="false" autocomplete="off" data-i18n-aria-label="key" />
         <span class="equals">=</span>
-        <input class="value" spellcheck="false" autocomplete="off" aria-label="Value" />
-        <button type="button" class="remove" aria-label="Remove parameter" title="Remove">×</button>
+        <input class="value" spellcheck="false" autocomplete="off" data-i18n-aria-label="value" />
+        <button type="button" class="remove" data-i18n-title="removeParameter" data-i18n-aria-label="removeParameter">×</button>
       </div>
     </template>
 
@@ -59,10 +77,11 @@
         <button type="button" class="preset-apply">
           <kbd class="shortcut"></kbd>
           <span class="preset-name"></span>
-          <span class="preset-params"></span>
-          <span class="preset-active" title="Already on this page">✓</span>
+          <span class="params-summary"></span>
+          <span class="scope" data-i18n="allSitesTag" hidden></span>
+          <span class="preset-active" data-i18n-title="alreadyOnPage">✓</span>
         </button>
-        <button type="button" class="preset-delete" aria-label="Delete preset" title="Delete">×</button>
+        <button type="button" class="delete" data-i18n-title="deletePreset" data-i18n-aria-label="deletePreset">×</button>
       </li>
     </template>
   </body>

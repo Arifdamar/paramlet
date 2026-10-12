@@ -1,0 +1,103 @@
+/* Colors, type and controls shared by the panel and the settings page. */
+
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1d1d22;
+  --muted: #73737f;
+  --line: #e4e4ea;
+  --field: #f4f4f7;
+  --field-focus: #ebebf5;
+  --accent: #5b5bd6;
+  --accent-soft: #5b5bd622;
+  --danger: #d4483b;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #222226;
+    --fg: #ececf1;
+    --muted: #8e8e99;
+    --line: #34343b;
+    --field: #2b2b31;
+    --field-focus: #34343d;
+    --accent-soft: #5b5bd640;
+    --danger: #ef6a5e;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px system-ui, sans-serif;
+}
+
+button {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button.link {
+  padding-left: 0;
+  padding-right: 0;
+  border: none;
+  background: none;
+  color: var(--muted);
+}
+
+button.link:hover {
+  color: var(--fg);
+}
+
+button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.status {
+  color: var(--muted);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.params-summary {
+  overflow: hidden;
+  color: var(--muted);
+  font: 11px var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Two-step delete: the first click arms it, the second deletes. */
+.delete.confirm {
+  color: var(--danger);
+}
+
+[hidden] {
+  display: none !important;
+}
