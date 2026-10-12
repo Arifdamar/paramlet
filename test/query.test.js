@@ -131,7 +131,7 @@ test("setting a value back to its original restores the raw segment", () => {
   assert.equal(buildUrl(parsed, rows), "https://example.com/?q=a+b");
 });
 
-test("a group overwrites existing keys, appends missing ones, and leaves the rest", () => {
+test("a preset overwrites existing keys, appends missing ones, and leaves the rest", () => {
   const parsed = parseUrl("https://example.com/?utm_source=x&id=3&q=a+b");
   const merged = mergeParams(rowsOf(parsed), [
     { key: "id", value: "7" },
@@ -147,7 +147,7 @@ test("merging does not modify the rows it was given", () => {
   assert.equal(rows[0].value, "3");
 });
 
-test("repeated keys in a group pair up with repeated keys in the URL, in order", () => {
+test("repeated keys in a preset pair up with repeated keys in the URL, in order", () => {
   const parsed = parseUrl("https://example.com/?tag=a&tag=b");
   const merged = mergeParams(rowsOf(parsed), [
     { key: "tag", value: "x" },
@@ -157,7 +157,7 @@ test("repeated keys in a group pair up with repeated keys in the URL, in order",
   assert.equal(buildUrl(parsed, merged), "https://example.com/?tag=x&tag=y&tag=z");
 });
 
-test("a group whose values are already set leaves the URL unchanged", () => {
+test("a preset whose values are already set leaves the URL unchanged", () => {
   const href = "https://example.com/?debug=1&id=7";
   const parsed = parseUrl(href);
   const params = [{ key: "id", value: "7" }, { key: "debug", value: "1" }];
@@ -165,7 +165,7 @@ test("a group whose values are already set leaves the URL unchanged", () => {
   assert.equal(buildUrl(parsed, mergeParams(rowsOf(parsed), params)), href);
 });
 
-test("a group is not contained when a value differs or a key is missing", () => {
+test("a preset is not contained when a value differs or a key is missing", () => {
   const rows = rowsOf(parseUrl("https://example.com/?id=7&tag=a"));
   assert.equal(containsParams(rows, [{ key: "id", value: "8" }]), false);
   assert.equal(containsParams(rows, [{ key: "debug", value: "1" }]), false);

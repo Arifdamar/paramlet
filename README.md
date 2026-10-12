@@ -14,25 +14,25 @@ open the panel:
 
 Values are shown decoded, so `hello%20world` reads as `hello world`.
 
-## Groups
+## Presets
 
-A group is a set of parameters you use often on a site, like `debug=1&log=verbose`
+A preset is a set of parameters you use often on a site, like `debug=1&log=verbose`
 on your dev server or `lang=tr` on a docs site.
 
-- **Save group** picks parameters from the current page. Untick the ones you
-  don't want, give the group a name, and save. Saving under an existing name
-  replaces that group.
-- Click a group, or press its number (<kbd>1</kbd>–<kbd>9</kbd>) while the
-  panel is open, to apply it. Keys the page already has get the group's value,
+- **Save preset** picks parameters from the current page. Untick the ones you
+  don't want, give the preset a name, and save. Saving under an existing name
+  replaces that preset.
+- Click a preset, or press its number (<kbd>1</kbd>–<kbd>9</kbd>) while the
+  panel is open, to apply it. Keys the page already has get the preset's value,
   missing keys are added, and every other parameter is left alone.
-- A ✓ marks groups whose values are all on the page already.
-- To delete a group, hover it, click ×, then click **Delete?** to confirm.
+- A ✓ marks presets whose values are all on the page already.
+- To delete a preset, hover it, click ×, then click **Delete?** to confirm.
 
-Groups belong to a site: `www.example.com` and `example.com` share them, while
+Presets belong to a site: `www.example.com` and `example.com` share them, while
 subdomains and ports are kept apart, so `localhost:3000` and `localhost:5173`
 each have their own.
 
-Groups are kept in the browser's sync storage. If you are signed in to a
+Presets are kept in the browser's sync storage. If you are signed in to a
 Mozilla account with add-on sync turned on, they follow you to your other
 devices; otherwise they stay on this one.
 
@@ -43,7 +43,7 @@ URL quietly changes in ways you did not ask for: `%20` turns into `+`, `?debug`
 turns into `debug=`, characters get re-encoded. Some servers care about that.
 
 Paramlet only rewrites the parameters you actually changed, whether by hand or
-through a group. Everything else goes back exactly as it was written, including
+through a preset. Everything else goes back exactly as it was written, including
 repeated keys (`tag=a&tag=b`) and empty segments.
 
 ## Install
@@ -65,7 +65,7 @@ The keyboard shortcut can be changed from `about:addons` → gear menu →
 
 - **tabs**: to read the current page's URL for the address bar count, and to
   load the edited URL.
-- **storage**: to keep your groups.
+- **storage**: to keep your presets.
 
 Paramlet makes no network requests and collects no data.
 
@@ -90,7 +90,7 @@ npm start -- --firefox="/Applications/Zen Browser.app/Contents/MacOS/zen"
 | File | What it does |
 |---|---|
 | [`src/query.js`](src/query.js) | Splits a URL into parameters and puts it back together |
-| [`src/groups.js`](src/groups.js) | Site matching and group storage |
+| [`src/presets.js`](src/presets.js) | Site matching and preset storage |
 | [`src/background.js`](src/background.js) | Draws the address bar button |
 | [`src/popup/`](src/popup) | The panel |
 

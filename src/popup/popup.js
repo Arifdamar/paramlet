@@ -1,25 +1,25 @@
 import { buildUrl, containsParams, mergeParams, parseUrl } from "../query.js";
-import { loadGroups, saveGroups, siteOf, upsertGroup } from "../groups.js";
+import { loadPresets, savePresets, siteOf, upsertPreset } from "../presets.js";
 
 const $ = (id) => document.getElementById(id);
 const rowsEl = $("rows");
 const countEl = $("count");
 const emptyEl = $("empty");
-const groupsEl = $("groups");
+const presetsEl = $("presets");
 const siteEl = $("site");
-const groupListEl = $("group-list");
+const presetListEl = $("preset-list");
 const statusEl = $("status");
 const footerEl = $("footer");
 const addButton = $("add");
-const saveGroupButton = $("save-group");
+const savePresetButton = $("save-preset");
 const copyButton = $("copy");
 const applyButton = $("apply");
 const saveForm = $("save-form");
-const groupNameInput = $("group-name");
+const presetNameInput = $("preset-name");
 const cancelSaveButton = $("cancel-save");
 const confirmSaveButton = $("confirm-save");
 const rowTemplate = $("row-template");
-const groupTemplate = $("group-template");
+const presetTemplate = $("preset-template");
 
 const SHORTCUTS = 9;
 
@@ -30,8 +30,8 @@ const site = siteOf(tab.url);
 // Every segment of the query, in order. Empty segments (`a=1&&b=2`) are kept
 // here so they survive an edit, but they are not shown.
 const rows = parsed.params.map((param) => ({ source: param, key: param.key, value: param.value }));
-const pickers = new Map(); // row -> its "include in group" checkbox
-let groups = [];
+const pickers = new Map(); // row -> its "include in preset" checkbox
+let presets = [];
 let saving = false;
 
 const isVisible = (row) => row.source === null || row.source.raw !== "";
@@ -51,7 +51,7 @@ function showStatus(message, { error = false } = {}) {
 
 function storageErrorMessage(error) {
   if (/quota/i.test(error?.message)) {
-    return "Not enough sync storage left for this site. Delete a group and try again.";
+    return "Not enough sync storage left for this site. Delete a preset and try again.";
   }
   return `Could not save: ${error?.message ?? error}`;
 }
@@ -63,9 +63,9 @@ function refresh() {
   countEl.textContent = String(visible.length);
   emptyEl.hidden = visible.length > 0;
   applyButton.disabled = editedUrl() === tab.url;
-  saveGroupButton.disabled = !visible.some((row) => row.key !== "");
-  groups.forEach((group, index) => {
-    groupListEl.children[index]?.classList.toggle("active", containsParams(rows, group.params));
+  savePresetButton.disabled = !visible.some((row) => row.key !== "");
+  presets.forEach((preset, index) => {
+    presetListEl.children[index]?.classList.toggle("active", containsParams(rows, preset.params));
   });
 }
 
@@ -131,41 +131,41 @@ copyButton.addEventListener("click", async () => {
 
 applyButton.addEventListener("click", () => navigate(editedUrl()));
 
-// ---- Groups ----------------------------------------------------------------
+// ---- Presets ---------------------------------------------------------------
 
 const describeParams = (params) =>
   params.map(({ key, value }) => (value === "" ? key : `${key}=${value}`)).join("  ");
 
-function applyGroup(group) {
-  navigate(buildUrl(parsed, mergeParams(rows, group.params)));
+function applyPreset(preset) {
+  navigate(buildUrl(parsed, mergeParams(rows, preset.params)));
 }
 
-async function storeGroups(next) {
+async function storePresets(next) {
   try {
-    await saveGroups(site, next);
+    await savePresets(site, next);
   } catch (error) {
     showStatus(storageErrorMessage(error), { error: true });
     return false;
   }
-  groups = next;
-  renderGroups();
+  presets = next;
+  renderPresets();
   return true;
 }
 
-function groupElement(group, index) {
-  const element = groupTemplate.content.firstElementChild.cloneNode(true);
-  const applyGroupButton = element.querySelector(".group-apply");
-  const deleteButton = element.querySelector(".group-delete");
-  const summary = describeParams(group.params);
+function presetElement(preset, index) {
+  const element = presetTemplate.content.firstElementChild.cloneNode(true);
+  const applyPresetButton = element.querySelector(".preset-apply");
+  const deleteButton = element.querySelector(".preset-delete");
+  const summary = describeParams(preset.params);
 
   element.querySelector(".shortcut").textContent = index < SHORTCUTS ? String(index + 1) : "";
-  element.querySelector(".group-name").textContent = group.name;
-  element.querySelector(".group-params").textContent = summary;
-  applyGroupButton.title = `${group.name}: ${summary}`;
-  applyGroupButton.addEventListener("click", () => applyGroup(group));
+  element.querySelector(".preset-name").textContent = preset.name;
+  element.querySelector(".preset-params").textContent = summary;
+  applyPresetButton.title = `${preset.name}: ${summary}`;
+  applyPresetButton.addEventListener("click", () => applyPreset(preset));
 
   // Deleting takes a second click on the same button, so a stray click on ×
-  // cannot throw a group away.
+  // cannot throw a preset away.
   const disarm = () => {
     deleteButton.classList.remove("confirm");
     deleteButton.textContent = "×";
@@ -176,8 +176,8 @@ function groupElement(group, index) {
       deleteButton.textContent = "Delete?";
       return;
     }
-    if (await storeGroups(groups.filter((existing) => existing !== group))) {
-      showStatus(`Deleted “${group.name}”.`);
+    if (await storePresets(presets.filter((existing) => existing !== preset))) {
+      showStatus(`Deleted “${preset.name}”.`);
     }
   });
   deleteButton.addEventListener("blur", disarm);
@@ -186,25 +186,25 @@ function groupElement(group, index) {
   return element;
 }
 
-function renderGroups() {
-  groupsEl.hidden = groups.length === 0;
-  groupListEl.replaceChildren(...groups.map(groupElement));
+function renderPresets() {
+  presetsEl.hidden = presets.length === 0;
+  presetListEl.replaceChildren(...presets.map(presetElement));
   refresh();
 }
 
-// Number keys apply groups, but never while the user is typing.
+// Number keys apply presets, but never while the user is typing.
 document.addEventListener("keydown", (event) => {
   if (saving || event.target.closest?.("input, textarea")) return;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   if (!/^[1-9]$/.test(event.key)) return;
-  const group = groups[Number(event.key) - 1];
-  if (group) {
+  const preset = presets[Number(event.key) - 1];
+  if (preset) {
     event.preventDefault();
-    applyGroup(group);
+    applyPreset(preset);
   }
 });
 
-// ---- Saving a group --------------------------------------------------------
+// ---- Saving a preset -------------------------------------------------------
 
 const pickedParams = () =>
   rows
@@ -212,7 +212,7 @@ const pickedParams = () =>
     .map(({ key, value }) => ({ key, value }));
 
 function updateSaveButton() {
-  confirmSaveButton.disabled = groupNameInput.value.trim() === "" || pickedParams().length === 0;
+  confirmSaveButton.disabled = presetNameInput.value.trim() === "" || pickedParams().length === 0;
 }
 
 function setSaving(on) {
@@ -222,25 +222,25 @@ function setSaving(on) {
   saveForm.hidden = !on;
   if (on) {
     for (const picker of pickers.values()) picker.checked = true;
-    groupNameInput.value = "";
+    presetNameInput.value = "";
     updateSaveButton();
-    groupNameInput.focus();
+    presetNameInput.focus();
   }
 }
 
-saveGroupButton.addEventListener("click", () => setSaving(true));
+savePresetButton.addEventListener("click", () => setSaving(true));
 cancelSaveButton.addEventListener("click", () => setSaving(false));
-groupNameInput.addEventListener("input", updateSaveButton);
+presetNameInput.addEventListener("input", updateSaveButton);
 
 saveForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const name = groupNameInput.value.trim();
+  const name = presetNameInput.value.trim();
   const params = pickedParams();
   if (name === "" || params.length === 0) return;
 
-  const next = upsertGroup(groups, { name, params });
-  const replaced = next.length === groups.length;
-  if (await storeGroups(next)) {
+  const next = upsertPreset(presets, { name, params });
+  const replaced = next.length === presets.length;
+  if (await storePresets(next)) {
     setSaving(false);
     showStatus(replaced ? `Updated “${name}”.` : `Saved “${name}”.`);
   }
@@ -251,13 +251,13 @@ saveForm.addEventListener("submit", async (event) => {
 for (const row of rows) if (isVisible(row)) showRow(row);
 
 if (site === "") {
-  saveGroupButton.hidden = true;
+  savePresetButton.hidden = true;
 } else {
   siteEl.textContent = site;
   try {
-    groups = await loadGroups(site);
+    presets = await loadPresets(site);
   } catch (error) {
-    showStatus(`Could not load saved groups: ${error?.message ?? error}`, { error: true });
+    showStatus(`Could not load saved presets: ${error?.message ?? error}`, { error: true });
   }
 }
-renderGroups();
+renderPresets();

@@ -2,7 +2,7 @@
 
 ## 0.2.0
 
-- Save parameters as named groups per site, and apply them with a click or the
+- Save parameters as named presets per site, and apply them with a click or the
   <kbd>1</kbd>–<kbd>9</kbd> keys.
 - The address bar button now shows on every web page, with `?` when the page
   has no query parameters.

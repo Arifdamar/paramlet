@@ -104,7 +104,7 @@ export function buildUrl(parsed, rows) {
 }
 
 // Pairs each wanted parameter with a row of the same key, in order: the first
-// `a` in a group goes with the first `a` in the URL, the second with the second.
+// `a` in a preset goes with the first `a` in the URL, the second with the second.
 function matchRows(rows, params) {
   const used = new Set();
   return params.map(({ key }) => {

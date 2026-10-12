@@ -133,7 +133,7 @@ body.saving .remove {
 }
 
 .remove,
-.group-delete {
+.preset-delete {
   width: 24px;
   height: 24px;
   padding: 0;
@@ -149,33 +149,33 @@ body.saving .remove {
 
 .row:hover .remove,
 .remove:focus-visible,
-.group:hover .group-delete,
-.group-delete:focus-visible,
-.group-delete.confirm {
+.preset:hover .preset-delete,
+.preset-delete:focus-visible,
+.preset-delete.confirm {
   opacity: 1;
 }
 
 .remove:hover,
-.group-delete:hover {
+.preset-delete:hover {
   background: var(--field);
   color: var(--fg);
 }
 
-.group-delete.confirm {
+.preset-delete.confirm {
   width: auto;
   padding: 0 8px;
   color: var(--danger);
   font-size: 12px;
 }
 
-/* Groups */
+/* Presets */
 
-.groups {
+.presets {
   margin-top: 6px;
   border-top: 1px solid var(--line);
 }
 
-.group-list {
+.preset-list {
   max-height: 200px;
   margin: 0;
   padding: 0 6px 2px;
@@ -183,13 +183,13 @@ body.saving .remove {
   list-style: none;
 }
 
-.group {
+.preset {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.group-apply {
+.preset-apply {
   display: flex;
   flex: 1;
   align-items: center;
@@ -202,8 +202,8 @@ body.saving .remove {
   text-align: left;
 }
 
-.group-apply:hover,
-.group-apply:focus-visible {
+.preset-apply:hover,
+.preset-apply:focus-visible {
   outline: none;
   background: var(--field);
 }
@@ -223,7 +223,7 @@ body.saving .remove {
   visibility: hidden;
 }
 
-.group-name {
+.preset-name {
   flex: none;
   max-width: 40%;
   overflow: hidden;
@@ -232,7 +232,7 @@ body.saving .remove {
   white-space: nowrap;
 }
 
-.group-params {
+.preset-params {
   flex: 1;
   overflow: hidden;
   color: var(--muted);
@@ -241,18 +241,18 @@ body.saving .remove {
   white-space: nowrap;
 }
 
-.group-active {
+.preset-active {
   flex: none;
   color: var(--accent);
   font-weight: 700;
   visibility: hidden;
 }
 
-.group.active .group-active {
+.preset.active .preset-active {
   visibility: visible;
 }
 
-.group.active .shortcut {
+.preset.active .shortcut {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--fg);

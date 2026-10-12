@@ -13,12 +13,12 @@
     <p class="empty" id="empty" hidden>No query parameters on this page.</p>
     <div class="rows" id="rows"></div>
 
-    <section class="groups" id="groups" hidden>
+    <section class="presets" id="presets" hidden>
       <header class="section-head">
-        <span class="title">Groups</span>
+        <span class="title">Presets</span>
         <span class="site" id="site"></span>
       </header>
-      <ol class="group-list" id="group-list"></ol>
+      <ol class="preset-list" id="preset-list"></ol>
     </section>
 
     <p class="status" id="status" role="status" hidden></p>
@@ -26,19 +26,19 @@
     <footer id="footer">
       <button type="button" class="link" id="add">+ Add parameter</button>
       <span class="spacer"></span>
-      <button type="button" id="save-group">Save group</button>
+      <button type="button" id="save-preset">Save preset</button>
       <button type="button" id="copy">Copy URL</button>
       <button type="button" class="primary" id="apply" disabled>Apply</button>
     </footer>
 
     <form class="save-bar" id="save-form" hidden>
       <input
-        id="group-name"
-        placeholder="Group name"
+        id="preset-name"
+        placeholder="Preset name"
         maxlength="40"
         spellcheck="false"
         autocomplete="off"
-        aria-label="Group name"
+        aria-label="Preset name"
       />
       <button type="button" id="cancel-save">Cancel</button>
       <button type="submit" class="primary" id="confirm-save" disabled>Save</button>
@@ -46,7 +46,7 @@
 
     <template id="row-template">
       <div class="row">
-        <input type="checkbox" class="pick" aria-label="Include in group" />
+        <input type="checkbox" class="pick" aria-label="Include in preset" />
         <input class="key" spellcheck="false" autocomplete="off" aria-label="Key" />
         <span class="equals">=</span>
         <input class="value" spellcheck="false" autocomplete="off" aria-label="Value" />
@@ -54,15 +54,15 @@
       </div>
     </template>
 
-    <template id="group-template">
-      <li class="group">
-        <button type="button" class="group-apply">
+    <template id="preset-template">
+      <li class="preset">
+        <button type="button" class="preset-apply">
           <kbd class="shortcut"></kbd>
-          <span class="group-name"></span>
-          <span class="group-params"></span>
-          <span class="group-active" title="Already on this page">✓</span>
+          <span class="preset-name"></span>
+          <span class="preset-params"></span>
+          <span class="preset-active" title="Already on this page">✓</span>
         </button>
-        <button type="button" class="group-delete" aria-label="Delete group" title="Delete">×</button>
+        <button type="button" class="preset-delete" aria-label="Delete preset" title="Delete">×</button>
       </li>
     </template>
   </body>

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { siteOf, upsertGroup } from "../src/groups.js";
+import { siteOf, upsertPreset } from "../src/presets.js";
 
 test("www and the bare domain are the same site", () => {
   assert.equal(siteOf("https://www.example.com/a?b=1"), "example.com");
@@ -22,15 +22,15 @@ test("a URL without a host has no site", () => {
   assert.equal(siteOf("not a url"), "");
 });
 
-test("saving under a new name adds the group at the end", () => {
+test("saving under a new name adds the preset at the end", () => {
   const a = { name: "a", params: [{ key: "x", value: "1" }] };
   const b = { name: "b", params: [{ key: "y", value: "2" }] };
-  assert.deepEqual(upsertGroup([a], b), [a, b]);
+  assert.deepEqual(upsertPreset([a], b), [a, b]);
 });
 
-test("saving under an existing name replaces that group in place, ignoring case", () => {
+test("saving under an existing name replaces that preset in place, ignoring case", () => {
   const a = { name: "Debug", params: [{ key: "x", value: "1" }] };
   const b = { name: "b", params: [] };
   const replacement = { name: "debug ", params: [{ key: "x", value: "2" }] };
-  assert.deepEqual(upsertGroup([a, b], replacement), [replacement, b]);
+  assert.deepEqual(upsertPreset([a, b], replacement), [replacement, b]);
 });
