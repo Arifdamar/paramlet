@@ -1,5 +1,6 @@
 // Saved parameter presets. They are stored per site in storage.sync, so they
-// follow the user to every browser signed in to the same account.
+// follow the user to every browser signed in to the same account. Presets
+// saved for every site live under the site name "*".
 
 /**
  * @typedef {object} Preset
@@ -7,7 +8,14 @@
  * @property {{ key: string, value: string }[]} params
  */
 
+/** @typedef {Record<string, Preset[]>} PresetsBySite */
+
 const PREFIX = "presets:";
+const EXPORT_FORMAT = "paramlet-presets";
+const EXPORT_VERSION = 1;
+
+/** The site name for presets that apply everywhere. */
+export const ALL_SITES = "*";
 
 /**
  * The site a URL's presets belong to: its host and port, without a leading
@@ -37,6 +45,16 @@ export async function savePresets(site, presets) {
   else await browser.storage.sync.set({ [key]: presets });
 }
 
+/** @returns {Promise<PresetsBySite>} */
+export async function loadAllPresets() {
+  const stored = await browser.storage.sync.get(null);
+  const bySite = {};
+  for (const [key, presets] of Object.entries(stored)) {
+    if (key.startsWith(PREFIX)) bySite[key.slice(PREFIX.length)] = presets;
+  }
+  return bySite;
+}
+
 const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 /**
@@ -49,4 +67,69 @@ const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
 export function upsertPreset(presets, preset) {
   const index = presets.findIndex((existing) => sameName(existing.name, preset.name));
   return index === -1 ? [...presets, preset] : presets.with(index, preset);
+}
+
+/** The file contents for an export of every preset. */
+export function exportPresets(bySite) {
+  return JSON.stringify({ format: EXPORT_FORMAT, version: EXPORT_VERSION, presets: bySite }, null, 2);
+}
+
+const isString = (value) => typeof value === "string";
+
+function readPreset(preset) {
+  if (!preset || !isString(preset.name) || preset.name.trim() === "") return null;
+  if (!Array.isArray(preset.params) || preset.params.length === 0) return null;
+  const params = [];
+  for (const param of preset.params) {
+    if (!param || !isString(param.key) || param.key === "" || !isString(param.value)) return null;
+    params.push({ key: param.key, value: param.value });
+  }
+  return { name: preset.name.trim(), params };
+}
+
+/**
+ * Reads an export file. Returns null if the text is not a Paramlet export or
+ * any preset in it is malformed; nothing is imported from a damaged file.
+ *
+ * @returns {PresetsBySite | null}
+ */
+export function readExport(text) {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (data?.format !== EXPORT_FORMAT || data.version !== EXPORT_VERSION) return null;
+  if (!data.presets || typeof data.presets !== "object" || Array.isArray(data.presets)) return null;
+
+  const bySite = {};
+  for (const [site, presets] of Object.entries(data.presets)) {
+    if (site === "" || !Array.isArray(presets)) return null;
+    const read = presets.map(readPreset);
+    if (read.includes(null)) return null;
+    bySite[site] = read;
+  }
+  return bySite;
+}
+
+/**
+ * Adds imported presets to existing ones. A preset with the name of an
+ * existing one on the same site replaces it.
+ *
+ * @param {PresetsBySite} existing
+ * @param {PresetsBySite} imported
+ * @returns {{ merged: PresetsBySite, changedSites: string[], count: number }}
+ */
+export function mergePresets(existing, imported) {
+  const merged = { ...existing };
+  const changedSites = [];
+  let count = 0;
+  for (const [site, presets] of Object.entries(imported)) {
+    if (presets.length === 0) continue;
+    merged[site] = presets.reduce(upsertPreset, merged[site] ?? []);
+    changedSites.push(site);
+    count += presets.length;
+  }
+  return { merged, changedSites, count };
 }

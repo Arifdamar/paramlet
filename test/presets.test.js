@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { siteOf, upsertPreset } from "../src/presets.js";
+import { exportPresets, mergePresets, readExport, siteOf, upsertPreset } from "../src/presets.js";
 
 test("www and the bare domain are the same site", () => {
   assert.equal(siteOf("https://www.example.com/a?b=1"), "example.com");
@@ -33,4 +33,57 @@ test("saving under an existing name replaces that preset in place, ignoring case
   const b = { name: "b", params: [] };
   const replacement = { name: "debug ", params: [{ key: "x", value: "2" }] };
   assert.deepEqual(upsertPreset([a, b], replacement), [replacement, b]);
+});
+
+const debug = { name: "Debug", params: [{ key: "debug", value: "1" }] };
+const lang = { name: "Turkish", params: [{ key: "lang", value: "tr" }] };
+
+test("an export reads back to the same presets", () => {
+  const bySite = { "example.com": [debug], "*": [lang] };
+  assert.deepEqual(readExport(exportPresets(bySite)), bySite);
+});
+
+test("an import keeps only the preset fields and trims names", () => {
+  const text = JSON.stringify({
+    format: "paramlet-presets",
+    version: 1,
+    presets: { "example.com": [{ name: " Debug ", extra: 1, params: [{ key: "a", value: "1", x: 2 }] }] },
+  });
+  assert.deepEqual(readExport(text), { "example.com": [{ name: "Debug", params: [{ key: "a", value: "1" }] }] });
+});
+
+test("anything that is not a whole, valid export is refused", () => {
+  const wrap = (presets, extra = {}) =>
+    JSON.stringify({ format: "paramlet-presets", version: 1, presets, ...extra });
+  for (const text of [
+    "not json",
+    "[]",
+    JSON.stringify({ presets: { "example.com": [debug] } }),
+    wrap({ "example.com": [debug] }, { version: 2 }),
+    wrap([debug]),
+    wrap({ "example.com": debug }),
+    wrap({ "": [debug] }),
+    wrap({ "example.com": [debug, { name: "", params: [{ key: "a", value: "" }] }] }),
+    wrap({ "example.com": [{ name: "x", params: [] }] }),
+    wrap({ "example.com": [{ name: "x", params: [{ key: "", value: "1" }] }] }),
+    wrap({ "example.com": [{ name: "x", params: [{ key: "a", value: 1 }] }] }),
+  ]) {
+    assert.equal(readExport(text), null, text);
+  }
+});
+
+test("importing adds new presets and replaces ones with the same name on the same site", () => {
+  const existing = { "example.com": [debug, lang], "other.com": [debug] };
+  const newDebug = { name: "debug", params: [{ key: "debug", value: "2" }] };
+  const { merged, changedSites, count } = mergePresets(existing, {
+    "example.com": [newDebug],
+    "*": [lang],
+  });
+  assert.deepEqual(merged, {
+    "example.com": [newDebug, lang],
+    "other.com": [debug],
+    "*": [lang],
+  });
+  assert.deepEqual(changedSites, ["example.com", "*"]);
+  assert.equal(count, 2);
 });
