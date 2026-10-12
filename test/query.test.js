@@ -6,6 +6,7 @@ import {
   countParams,
   decodeComponent,
   mergeParams,
+  paramsFromText,
   parseUrl,
 } from "../src/query.js";
 
@@ -19,9 +20,29 @@ test("counts real parameters only", () => {
   assert.equal(countParams("https://example.com/?flag"), 1);
 });
 
-test("a ? inside the fragment is not a query", () => {
-  assert.equal(countParams("https://example.com/app#/route?x=1"), 0);
-  assert.equal(countParams("https://example.com/?a=1#/route?x=1&y=2"), 1);
+test("fragment parameters are counted with the query's", () => {
+  assert.equal(countParams("https://example.com/app#/route?x=1"), 1);
+  assert.equal(countParams("https://example.com/?a=1#/route?x=1&y=2"), 3);
+  assert.equal(countParams("https://example.com/cb#access_token=t&state=s"), 2);
+});
+
+test("anchors, bare routes and text fragments have no fragment parameters", () => {
+  for (const href of [
+    "https://example.com/#top",
+    "https://example.com/#/users/7",
+    "https://example.com/#/a=b/c",
+    "https://example.com/#:~:text=hello",
+  ]) {
+    assert.equal(parseUrl(href).hashParams, null, href);
+    assert.equal(countParams(href), 0, href);
+  }
+});
+
+test("fragment parameters are parsed after a route or as the whole fragment", () => {
+  const routed = parseUrl("https://example.com/?a=1#/route?x=1&y=two+words");
+  assert.equal(routed.hashPrefix, "#/route?");
+  assert.deepEqual(routed.hashParams.map(({ key, value }) => [key, value]), [["x", "1"], ["y", "two words"]]);
+  assert.equal(parseUrl("https://example.com/#k=v").hashPrefix, "#");
 });
 
 test("decodes keys and values for display", () => {
@@ -170,4 +191,58 @@ test("a preset is not contained when a value differs or a key is missing", () =>
   assert.equal(containsParams(rows, [{ key: "id", value: "8" }]), false);
   assert.equal(containsParams(rows, [{ key: "debug", value: "1" }]), false);
   assert.equal(containsParams(rows, [{ key: "tag", value: "a" }, { key: "tag", value: "a" }]), false);
+});
+
+test("editing a fragment parameter leaves the query and route as written", () => {
+  const parsed = parseUrl("https://example.com/p?q=a+b#/route?x=1&y=%20z");
+  const hashRows = rowsOf({ params: parsed.hashParams });
+  hashRows[0].value = "2";
+  assert.equal(
+    buildUrl(parsed, rowsOf(parsed), hashRows),
+    "https://example.com/p?q=a+b#/route?x=2&y=%20z",
+  );
+});
+
+test("editing the query leaves fragment parameters as written", () => {
+  const parsed = parseUrl("https://example.com/?id=1#/route?x=a+b");
+  const rows = rowsOf(parsed);
+  rows[0].value = "2";
+  assert.equal(
+    buildUrl(parsed, rows, rowsOf({ params: parsed.hashParams })),
+    "https://example.com/?id=2#/route?x=a+b",
+  );
+});
+
+test("removing every fragment parameter keeps the route and drops a bare #", () => {
+  const routed = parseUrl("https://example.com/#/route?x=1");
+  assert.equal(buildUrl(routed, [], []), "https://example.com/#/route");
+  const bare = parseUrl("https://example.com/?a=1#k=v");
+  assert.equal(buildUrl(bare, rowsOf(bare), []), "https://example.com/?a=1");
+});
+
+test("pasted query strings and URLs become parameters", () => {
+  assert.deepEqual(paramsFromText("?a=1&b=two+words"), [
+    { key: "a", value: "1" },
+    { key: "b", value: "two words" },
+  ]);
+  assert.deepEqual(paramsFromText("  https://example.com/x?utm_source=g&flag#top "), [
+    { key: "utm_source", value: "g" },
+    { key: "flag", value: "" },
+  ]);
+  assert.deepEqual(paramsFromText("a=%C5%9F"), [{ key: "a", value: "ş" }]);
+});
+
+test("pasted lines are read as key=value without decoding", () => {
+  assert.deepEqual(paramsFromText("debug = 1\nq=a+b%20\r\n\nflag"), [
+    { key: "debug", value: "1" },
+    { key: "q", value: "a+b%20" },
+    { key: "flag", value: "" },
+  ]);
+});
+
+test("plain text is not taken for parameters", () => {
+  assert.equal(paramsFromText("utm_source"), null);
+  assert.equal(paramsFromText("https://example.com/no-query"), null);
+  assert.equal(paramsFromText("one\ntwo"), null);
+  assert.equal(paramsFromText("?"), null);
 });

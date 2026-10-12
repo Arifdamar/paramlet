@@ -17,8 +17,12 @@
  * @typedef {object} ParsedUrl
  * @property {string} href          The URL that was parsed.
  * @property {string} base          Everything before the `?`.
+ * @property {string} search        The query including `?`, or "".
+ * @property {Param[]} params       Every `&`-separated segment of the query, empty ones too.
  * @property {string} hash          The fragment including `#`, or "".
- * @property {Param[]} params       Every `&`-separated segment, empty ones too.
+ * @property {string} hashPrefix    The part of the fragment before its parameters:
+ *                                  "#/route?" or "#". The whole fragment if it has none.
+ * @property {Param[] | null} hashParams  Parameters in the fragment, or null if it has none.
  */
 
 /**
@@ -38,13 +42,33 @@ export function decodeComponent(text) {
   }
 }
 
-function splitQuery(href) {
+function splitUrl(href) {
   const hashAt = href.indexOf("#");
   const beforeHash = hashAt === -1 ? href : href.slice(0, hashAt);
   const hash = hashAt === -1 ? "" : href.slice(hashAt);
   const queryAt = beforeHash.indexOf("?");
-  if (queryAt === -1) return { base: beforeHash, query: null, hash };
-  return { base: beforeHash.slice(0, queryAt), query: beforeHash.slice(queryAt + 1), hash };
+  if (queryAt === -1) return { base: beforeHash, search: "", query: null, hash };
+  return {
+    base: beforeHash.slice(0, queryAt),
+    search: beforeHash.slice(queryAt),
+    query: beforeHash.slice(queryAt + 1),
+    hash,
+  };
+}
+
+// Single-page apps keep parameters in the fragment, either after a route
+// (`#/route?x=1`) or as the whole fragment (`#access_token=…&state=…`). A plain
+// anchor (`#top`), a route without parameters (`#/route`) and a text fragment
+// (`#:~:text=…`) have none.
+function splitHash(hash) {
+  const queryAt = hash.indexOf("?");
+  if (queryAt !== -1) return { prefix: hash.slice(0, queryAt + 1), query: hash.slice(queryAt + 1) };
+  const body = hash.slice(1);
+  const equalsAt = body.indexOf("=");
+  if (equalsAt > 0 && !body.slice(0, equalsAt).includes("/") && !body.startsWith(":~:")) {
+    return { prefix: "#", query: body };
+  }
+  return { prefix: hash, query: null };
 }
 
 function parseSegment(raw) {
@@ -62,16 +86,62 @@ function parseSegment(raw) {
 
 /** @returns {ParsedUrl} */
 export function parseUrl(href) {
-  const { base, query, hash } = splitQuery(href);
-  const params = query === null ? [] : query.split("&").map(parseSegment);
-  return { href, base, hash, params };
+  const { base, search, query, hash } = splitUrl(href);
+  const { prefix, query: hashQuery } = splitHash(hash);
+  return {
+    href,
+    base,
+    search,
+    params: query === null ? [] : query.split("&").map(parseSegment),
+    hash,
+    hashPrefix: prefix,
+    hashParams: hashQuery === null ? null : hashQuery.split("&").map(parseSegment),
+  };
 }
 
-/** Number of real parameters in a URL; `a=1&&b=2&` counts as two. */
+const countSegments = (query) =>
+  query === null ? 0 : query.split("&").filter((segment) => segment !== "").length;
+
+/** Number of real parameters in a URL, query and fragment together; `a=1&&b=2&` counts as two. */
 export function countParams(href) {
-  const { query } = splitQuery(href);
-  if (query === null) return 0;
-  return query.split("&").filter((segment) => segment !== "").length;
+  const { query, hash } = splitUrl(href);
+  return countSegments(query) + countSegments(splitHash(hash).query);
+}
+
+/**
+ * Reads parameters out of pasted text: a whole URL, a query string
+ * (`?a=1&b=2`), or one `key=value` per line. Returns null when the text does
+ * not look like parameters, so it can be pasted as plain text instead.
+ *
+ * @returns {{ key: string, value: string }[] | null}
+ */
+export function paramsFromText(text) {
+  const trimmed = text.trim();
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+    const { query } = splitUrl(trimmed);
+    return query === null ? null : listFromQuery(query);
+  }
+  if (/[\r\n]/.test(trimmed)) {
+    const lines = trimmed.split(/[\r\n]+/).map((line) => line.trim()).filter((line) => line !== "");
+    if (!lines.some((line) => line.includes("="))) return null;
+    return lines.map((line) => {
+      const equalsAt = line.indexOf("=");
+      if (equalsAt === -1) return { key: line, value: "" };
+      return { key: line.slice(0, equalsAt).trim(), value: line.slice(equalsAt + 1).trim() };
+    });
+  }
+  const query = trimmed.replace(/^[?#]/, "");
+  if (!query.includes("=") && !query.includes("&")) return null;
+  return listFromQuery(query);
+}
+
+function listFromQuery(query) {
+  const params = query
+    .split("&")
+    .filter((segment) => segment !== "")
+    .map(parseSegment)
+    .map(({ key, value }) => ({ key, value }));
+  return params.length === 0 ? null : params;
 }
 
 function isUnchanged(row) {
@@ -85,22 +155,49 @@ function encodeRow(row) {
   return keepEquals ? `${key}=${encodeURIComponent(row.value)}` : key;
 }
 
+function keptRows(rows) {
+  return rows.filter((row) => row.source !== null || row.key !== "" || row.value !== "");
+}
+
+function isChanged(params, rows) {
+  const kept = keptRows(rows);
+  return (
+    kept.length !== params.length ||
+    kept.some((row, index) => row.source !== params[index] || !isUnchanged(row))
+  );
+}
+
+const encodeQuery = (rows) => keptRows(rows).map(encodeRow).join("&");
+
 /**
- * Builds the URL for an edited list of rows. Rows missing from the list are
+ * Builds the URL for edited lists of rows: `rows` for the query and, when the
+ * fragment has parameters, `hashRows` for those. Rows missing from a list are
  * removed parameters. An added row with neither key nor value is ignored.
+ * Leaving `hashRows` out keeps the fragment as it was.
  *
  * @param {ParsedUrl} parsed
  * @param {Row[]} rows
+ * @param {Row[]} [hashRows]
  */
-export function buildUrl(parsed, rows) {
-  const kept = rows.filter((row) => row.source !== null || row.key !== "" || row.value !== "");
-  const changed =
-    kept.length !== parsed.params.length ||
-    kept.some((row, index) => row.source !== parsed.params[index] || !isUnchanged(row));
-  if (!changed) return parsed.href;
+export function buildUrl(parsed, rows, hashRows) {
+  const searchChanged = isChanged(parsed.params, rows);
+  const hashChanged =
+    parsed.hashParams !== null && hashRows !== undefined && isChanged(parsed.hashParams, hashRows);
+  if (!searchChanged && !hashChanged) return parsed.href;
 
-  const query = kept.map(encodeRow).join("&");
-  return query === "" ? parsed.base + parsed.hash : `${parsed.base}?${query}${parsed.hash}`;
+  let search = parsed.search;
+  if (searchChanged) {
+    const query = encodeQuery(rows);
+    search = query === "" ? "" : `?${query}`;
+  }
+
+  let hash = parsed.hash;
+  if (hashChanged) {
+    const query = encodeQuery(hashRows);
+    // With every parameter gone, `#/route?` becomes `#/route` and a bare `#` goes away.
+    hash = query === "" ? parsed.hashPrefix.slice(0, -1) : parsed.hashPrefix + query;
+  }
+  return parsed.base + search + hash;
 }
 
 // Pairs each wanted parameter with a row of the same key, in order: the first
