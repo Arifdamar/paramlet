@@ -129,7 +129,7 @@
     "message": "Change it from about:addons → gear menu → Manage Extension Shortcuts."
   },
   "presetsHelp": {
-    "message": "Presets are saved from the panel. They sync between browsers signed in to the same Mozilla account when add-on sync is on."
+    "message": "Presets are saved from the panel. If your browser account syncs extension data, they show up on your other computers too."
   },
   "noPresets": {
     "message": "No saved presets yet."

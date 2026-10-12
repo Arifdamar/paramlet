@@ -1,8 +1,10 @@
 # Paramlet
 
-A Firefox extension for reading and editing the query parameters of the page
-you are on. It works in Firefox and in browsers built on it, like
-[Zen](https://zen-browser.app).
+A browser extension for reading and editing the query parameters of the page
+you are on. It works in Firefox, Zen, Chrome, Edge, Brave and Opera.
+
+[![Get it for Firefox](https://img.shields.io/badge/Firefox-Get%20the%20add--on-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org/firefox/addon/paramlet/)
+[![Download for Chrome, Edge, Brave and Opera](https://img.shields.io/badge/Chrome%20%2F%20Edge%20%2F%20Brave%20%2F%20Opera-Download-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/Arifdamar/paramlet/releases/latest)
 
 [![CI](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml/badge.svg)](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Arifdamar/paramlet)](https://github.com/Arifdamar/paramlet/releases/latest)
@@ -25,8 +27,12 @@ Things I use it for:
 
 ## What it does
 
-A button in the address bar shows how many parameters the page has. It shows
-`?` when there are none. Clicking it (or pressing <kbd>Alt</kbd>+<kbd>Q</kbd>,
+A button shows how many parameters the page has, or `?` when there are none.
+In Firefox and Zen it sits inside the address bar. Chrome and the other
+Chromium browsers don't let extensions put buttons there, so it is a toolbar
+button instead; pin it from the puzzle piece menu to keep it visible.
+
+Clicking the button (or pressing <kbd>Alt</kbd>+<kbd>Q</kbd>,
 <kbd>Ctrl</kbd>+<kbd>Q</kbd> on macOS) opens a panel with one row per
 parameter.
 
@@ -65,8 +71,9 @@ the order, or use <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd
 `www.example.com` and `example.com` share presets. Subdomains and ports do
 not, so `localhost:3000` and `localhost:5173` each keep their own.
 
-Presets are saved in Firefox sync storage. If you are signed in to a Mozilla
-account with add-on sync turned on, they show up on your other computers too.
+Presets are saved in the browser's sync storage. If you are signed in to your
+browser account with sync turned on for extensions, they show up on your other
+computers too.
 
 ### Settings page
 
@@ -80,14 +87,26 @@ The extension is in English and Turkish.
 
 ## Install
 
-It is not on addons.mozilla.org yet. Until it is:
+### Firefox and Zen
 
-1. Download the zip from the
-   [latest release](https://github.com/Arifdamar/paramlet/releases/latest).
-2. Open `about:debugging#/runtime/this-firefox`.
-3. Click **Load Temporary Add-on** and pick the zip.
+Install it from
+[addons.mozilla.org](https://addons.mozilla.org/firefox/addon/paramlet/).
 
-Firefox removes temporary add-ons when it restarts.
+### Chrome, Edge, Brave and Opera
+
+It is not in the Chrome Web Store or the Edge Add-ons store yet. Until it is:
+
+1. Download `paramlet-<version>-chromium.zip` from the
+   [latest release](https://github.com/Arifdamar/paramlet/releases/latest) and
+   unzip it.
+2. Open `chrome://extensions` (`edge://extensions` in Edge) and turn on
+   **Developer mode**.
+3. Click **Load unpacked** and pick the unzipped folder.
+
+### Safari
+
+Not supported yet. Safari extensions have to be built with Xcode and need a
+paid Apple developer account.
 
 ## Privacy
 
@@ -101,11 +120,18 @@ You need Node.js 22 or newer.
 
 ```sh
 npm install
-npm test        # unit tests
-npm run lint    # web-ext lint
-npm start       # opens Firefox with the extension loaded
-npm run build   # writes a zip to web-ext-artifacts/
+npm test                # unit tests
+npm run lint            # web-ext lint (Firefox)
+npm start               # opens Firefox with the extension loaded
+npm run build           # Firefox and Chromium zips in web-ext-artifacts/
+npm run build:chromium  # only the Chromium one, unpacked in dist/chromium/
 ```
+
+`manifest.json` is the Firefox manifest. The Chromium one is generated from it
+by `scripts/chromium-manifest.mjs`: the address bar button becomes a toolbar
+button, the background script becomes a service worker, and the icons are
+PNG. The code itself is the same for both; `src/browser.js` makes the
+`browser` API name work in Chromium too.
 
 To run it in Zen on macOS:
 
@@ -125,8 +151,8 @@ Where things are:
 
 To add a language, copy `_locales/en/messages.json` into a new folder named
 after the language code and translate the `message` values. `npm test` fails
-if a key is missing. Pushing a tag like `v1.2.0` builds the zip and creates a
-GitHub release.
+if a key is missing. Pushing a tag like `v1.2.0` builds both zips and creates
+a GitHub release with them.
 
 ## License
 

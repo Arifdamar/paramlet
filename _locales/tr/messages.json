@@ -129,7 +129,7 @@
     "message": "about:addons → dişli menüsü → Manage Extension Shortcuts üzerinden değiştirebilirsin."
   },
   "presetsHelp": {
-    "message": "Presetler panelden kaydedilir. Aynı Mozilla hesabıyla giriş yapılmış tarayıcılar arasında, eklenti senkronizasyonu açıksa senkronize olur."
+    "message": "Presetler panelden kaydedilir. Tarayıcı hesabın eklenti verilerini senkronize ediyorsa diğer bilgisayarlarında da görünür."
   },
   "noPresets": {
     "message": "Henüz kayıtlı preset yok."
