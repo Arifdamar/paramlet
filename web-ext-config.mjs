@@ -9,6 +9,7 @@ export default {
     "package.json",
     "package-lock.json",
     "web-ext-config.mjs",
+    "README.md",
     "CHANGELOG.md",
   ],
   build: {
