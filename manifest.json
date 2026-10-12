@@ -1,21 +1,22 @@
 {
   "manifest_version": 3,
   "name": "Paramlet",
-  "version": "0.1.0",
-  "description": "See and edit a page's query parameters from the address bar.",
+  "version": "0.2.0",
+  "description": "See, edit and save a page's query parameters from the address bar.",
   "icons": {
     "48": "icons/paramlet.svg",
     "96": "icons/paramlet.svg"
   },
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "storage"],
   "background": {
     "scripts": ["src/background.js"],
     "type": "module"
   },
   "page_action": {
     "default_icon": "icons/paramlet.svg",
-    "default_title": "Query parameters",
-    "default_popup": "src/popup/popup.html"
+    "default_title": "Paramlet",
+    "default_popup": "src/popup/popup.html",
+    "show_matches": ["http://*/*", "https://*/*"]
   },
   "commands": {
     "_execute_page_action": {

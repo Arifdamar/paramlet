@@ -1,5 +1,6 @@
-// Shows the address bar button on pages that have query parameters, with the
-// number of parameters drawn into the icon.
+// Keeps the address bar button's icon in step with the page: the number of
+// query parameters, or "?" when there are none. The manifest's show_matches
+// makes the button appear on every web page; this script only draws it.
 
 import { countParams } from "./query.js";
 
@@ -7,8 +8,7 @@ const ICON_SIZES = [16, 32];
 const COLOR = "#5b5bd6";
 const iconCache = new Map();
 
-function iconFor(count) {
-  const label = count > 99 ? "99+" : String(count);
+function iconFor(label) {
   if (iconCache.has(label)) return iconCache.get(label);
 
   const imageData = {};
@@ -36,25 +36,30 @@ function isWebPage(url) {
   return url !== undefined && (url.startsWith("https://") || url.startsWith("http://"));
 }
 
+function describe(count) {
+  if (count === 0) return "Paramlet: no query parameters";
+  if (count === 1) return "Paramlet: 1 query parameter";
+  return `Paramlet: ${count} query parameters`;
+}
+
 async function refresh(tabId, url) {
-  const count = isWebPage(url) ? countParams(url) : 0;
-  if (count === 0) {
-    await browser.pageAction.hide(tabId);
-    return;
-  }
-  await browser.pageAction.setIcon({ tabId, imageData: iconFor(count) });
-  await browser.pageAction.setTitle({
-    tabId,
-    title: count === 1 ? "1 query parameter" : `${count} query parameters`,
-  });
-  await browser.pageAction.show(tabId);
+  if (!isWebPage(url)) return;
+  const count = countParams(url);
+  const label = count === 0 ? "?" : count > 99 ? "99+" : String(count);
+  await Promise.all([
+    browser.pageAction.setIcon({ tabId, imageData: iconFor(label) }),
+    browser.pageAction.setTitle({ tabId, title: describe(count) }),
+  ]);
+}
+
+async function refreshAll() {
+  const tabs = await browser.tabs.query({});
+  await Promise.all(tabs.map((tab) => refresh(tab.id, tab.url)));
 }
 
 browser.tabs.onUpdated.addListener(
   (tabId, changeInfo, tab) => refresh(tabId, tab.url).catch(console.error),
   { properties: ["url", "status"] },
 );
-
-browser.tabs.query({}).then((tabs) => {
-  for (const tab of tabs) refresh(tab.id, tab.url).catch(console.error);
-});
+browser.runtime.onInstalled.addListener(() => refreshAll().catch(console.error));
+browser.runtime.onStartup.addListener(() => refreshAll().catch(console.error));
