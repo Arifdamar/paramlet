@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0
+
+- Search: once a list has 8 or more items, a search field filters parameters
+  (by key or value) and presets (by name or parameters). Press <kbd>/</kbd> to
+  jump to it. The settings page can search sites and presets too.
+- The panel never grows past the 600px Firefox allows: long lists share the
+  room and scroll inside themselves, and the buttons stay in view.
+- Hovering a preset lists its parameters one per line.
+- Importing presets is all or nothing: if sync storage is full, nothing is
+  written.
+
 ## 1.0.0
 
 - Parameters after `#` in single-page app URLs (`#/route?tab=2`,

@@ -19,6 +19,18 @@ elsewhere, to open the panel.
 - Paste a whole URL, a query string like `?a=1&b=2`, or one `key=value` per
   line into a key field, and every parameter in it is added at once.
 
+### Long lists and search
+
+The panel never grows taller than the 600px Firefox allows. When there are
+many parameters or presets, each list scrolls inside its own section and the
+buttons stay in view.
+
+Once a list has 8 or more items, a search field appears. It filters
+parameters by key or value and presets by name or parameters; press
+<kbd>/</kbd> to jump to it. Rows you add stay in view while a search is
+active, and saving a preset clears the search so every parameter can be
+picked.
+
 ### Parameters after `#`
 
 Single-page apps often keep parameters in the fragment: `#/route?tab=2`, or
