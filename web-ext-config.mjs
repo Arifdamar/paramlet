@@ -1,6 +1,7 @@
 export default {
   ignoreFiles: [
     "test",
+    "docs",
     ".github",
     "package.json",
     "package-lock.json",

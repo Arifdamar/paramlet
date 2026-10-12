@@ -1,111 +1,88 @@
+<div align="center">
+
 # Paramlet
 
-See, edit and save a page's query parameters from the address bar. Works in
-Firefox and Firefox-based browsers like [Zen](https://zen-browser.app).
+**Query parameters, without squinting at the URL.**
 
-Paramlet adds a button to the address bar of every web page. It shows how many
-query parameters the page has, or `?` when it has none. Click it, or press
-<kbd>Ctrl</kbd>+<kbd>Q</kbd> on macOS and <kbd>Alt</kbd>+<kbd>Q</kbd>
-elsewhere, to open the panel.
+See, edit, clean and save a page's query parameters from the address bar.
+For Firefox and Firefox-based browsers like [Zen](https://zen-browser.app).
 
-## Editing
+[![CI](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml/badge.svg)](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Arifdamar/paramlet)](https://github.com/Arifdamar/paramlet/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-5b5bd6)](LICENSE)
 
-- Change any key or value, remove a parameter with ×, or add one with
-  **+ Add parameter**. Values are shown decoded, so `hello%20world` reads as
-  `hello world`.
-- **Apply** (or <kbd>Enter</kbd> in any field) loads the edited URL. Hold
-  <kbd>Ctrl</kbd>, or <kbd>⌘</kbd> on macOS, to open it in a new tab instead.
-- **Copy URL** copies the edited URL.
-- Paste a whole URL, a query string like `?a=1&b=2`, or one `key=value` per
-  line into a key field, and every parameter in it is added at once.
+![Paramlet demo](docs/demo.gif)
 
-### Long lists and search
+[Watch the full video (47 s)](docs/paramlet-demo.mp4)
 
-The panel never grows taller than the 600px Firefox allows. When there are
-many parameters or presets, each list scrolls inside its own section and the
-buttons stay in view.
+</div>
 
-Once a list has 8 or more items, a search field appears. It filters
-parameters by key or value and presets by name or parameters; press
-<kbd>/</kbd> to jump to it. Rows you add stay in view while a search is
-active, and saving a preset clears the search so every parameter can be
-picked.
+## What it is for
 
-### Parameters after `#`
+- **Share clean links.** A link from a newsletter or an ad comes with
+  `utm_source`, `gclid`, `fbclid` and friends. **Remove tracking** strips them
+  in one click and keeps the parameters the page actually needs.
+- **Flip flags while you build.** Turn `debug=1&log=verbose` on and off on
+  `localhost:5173`, try another `lang`, `theme` or `variant`, without editing a
+  200-character URL by hand. Save the combination as a preset and apply it with
+  a single key.
+- **Read what a URL is doing.** Long report links, search pages and redirects
+  become a readable list, with values decoded (`hello%20world` reads as
+  `hello world`) and a search field when the list gets long.
+- **Work with single-page apps.** Parameters after `#` (`#/orders?page=3`,
+  `#access_token=…`) get their own section and can be edited like the rest.
 
-Single-page apps often keep parameters in the fragment: `#/route?tab=2`, or
-`#access_token=…&state=…` after a sign-in. Paramlet lists those in their own
-section, and edits them without touching the route in front of them. Plain
-anchors like `#top` are left alone.
+## Features
 
-### Tracking parameters
+| | |
+|---|---|
+| **Address bar button** | On every web page, showing how many parameters it has (or `?` for none). |
+| **Edit** | Change, add and remove parameters. **Apply** loads the result; hold <kbd>Ctrl</kbd>/<kbd>⌘</kbd> to open it in a new tab. **Copy URL** copies it. |
+| **Paste** | Paste a whole URL, `?a=1&b=2`, or `key=value` lines into a key field to add them all at once. |
+| **Remove tracking** | Known tracking parameters are shown dimmed and removed in one click. The list is in [`src/tracking.js`](src/tracking.js). |
+| **Presets** | Save parameters for the current site or for every site. Apply with a click or <kbd>1</kbd>–<kbd>9</kbd>, reorder by dragging. A ✓ marks presets already on the page. |
+| **Search** | Appears once a list has 8 or more items. Filters parameters by key or value and presets by name or contents. |
+| **Settings page** | Every site's presets in one place: search, reorder, delete, export to a file and import back. |
+| **Languages** | English and Turkish. |
 
-`utm_*`, `gclid`, `fbclid`, `msclkid` and other known tracking parameters are
-shown dimmed. **Remove tracking** takes them all out; press **Apply** to load
-the clean URL. The list is in [`src/tracking.js`](src/tracking.js).
+### Your URL stays your URL
 
-## Presets
+Most tools rebuild the whole query string when you change one thing: `%20`
+turns into `+`, `?debug` turns into `debug=`, characters get re-encoded, and
+some servers notice. Paramlet only rewrites the parameters you actually
+changed. Everything else goes back exactly as it was written, including
+repeated keys (`tag=a&tag=b`) and empty segments.
 
-A preset is a set of parameters you use often, like `debug=1&log=verbose` on
-your dev server or `lang=tr` on a docs site.
+## Keyboard
 
-- **Save preset** picks parameters from the current page. Untick the ones you
-  don't want, give the preset a name, and save. Tick **All sites** to make it
-  available everywhere; otherwise it belongs to the current site. Saving under
-  an existing name replaces that preset.
-- Click a preset, or press its number (<kbd>1</kbd>–<kbd>9</kbd>) while the
-  panel is open, to apply it. Keys the page already has get the preset's value,
-  missing keys are added, and every other parameter is left alone. Hold
-  <kbd>Ctrl</kbd>/<kbd>⌘</kbd> while clicking to open the result in a new tab.
-- A ✓ marks presets whose values are all on the page already.
-- To delete a preset, hover it, click ×, then click again to confirm.
-
-Presets belong to a site: `www.example.com` and `example.com` share them, while
-subdomains and ports are kept apart, so `localhost:3000` and `localhost:5173`
-each have their own.
-
-Presets are kept in the browser's sync storage. If you are signed in to a
-Mozilla account with add-on sync turned on, they follow you to your other
-devices; otherwise they stay on this one.
-
-## Settings
-
-The ⚙ button in the panel opens the settings page, where you can:
-
-- see the presets of every site and delete them,
-- **Export** every preset to a JSON file and **Import** it on another browser
-  (presets with the same name on the same site are replaced),
-- see and change the keyboard shortcut.
-
-## Your URL stays your URL
-
-Most tools rebuild the whole query string when you change one thing, and the
-URL quietly changes in ways you did not ask for: `%20` turns into `+`, `?debug`
-turns into `debug=`, characters get re-encoded. Some servers care about that.
-
-Paramlet only rewrites the parameters you actually changed, by hand, through a
-preset or with **Remove tracking**. Everything else goes back exactly as it was
-written, including repeated keys (`tag=a&tag=b`) and empty segments.
+| Key | Does |
+|---|---|
+| <kbd>Alt</kbd>+<kbd>Q</kbd> (<kbd>Ctrl</kbd>+<kbd>Q</kbd> on macOS) | Open the panel. Change it on the settings page. |
+| <kbd>Enter</kbd> | Apply. With <kbd>Ctrl</kbd>/<kbd>⌘</kbd>: open in a new tab. |
+| <kbd>1</kbd>–<kbd>9</kbd> | Apply that preset (not while typing in a field). |
+| <kbd>/</kbd> | Jump to search. |
+| <kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd> | Move the focused preset up or down. |
 
 ## Install
 
-Paramlet is not on addons.mozilla.org yet. To try it:
+Paramlet is not on addons.mozilla.org yet. Until then:
 
-1. Download the latest zip from [Releases](../../releases), or build one with
-   `npm run build`.
+1. Download `paramlet-<version>.zip` from the
+   [latest release](https://github.com/Arifdamar/paramlet/releases/latest).
 2. Open `about:debugging#/runtime/this-firefox` in Firefox or Zen.
-3. Click **Load Temporary Add-on…** and pick the zip (or `manifest.json` in a
-   clone of this repository).
+3. Click **Load Temporary Add-on…** and pick the zip.
 
 A temporary add-on is removed when the browser restarts.
 
-## Permissions
+## Privacy
 
-- **tabs**: to read the current page's URL for the address bar count, and to
-  load the edited URL.
-- **storage**: to keep your presets.
+Paramlet makes no network requests and collects no data. It asks for two
+permissions:
 
-Paramlet makes no network requests and collects no data.
+- **tabs**, to read the current page's URL and load the edited one;
+- **storage**, to keep your presets. They are stored in the browser's sync
+  storage, so with add-on sync on in your Mozilla account they follow you to
+  your other devices.
 
 ## Development
 
@@ -115,11 +92,11 @@ Needs Node.js 22 or newer.
 npm install
 npm test        # unit tests
 npm run lint    # web-ext lint
-npm start       # opens Firefox with the extension loaded
-npm run build   # zip for addons.mozilla.org, in web-ext-artifacts/
+npm start       # Firefox with the extension loaded
+npm run build   # zip in web-ext-artifacts/
 ```
 
-To run it in Zen on macOS:
+Running it in Zen on macOS:
 
 ```sh
 npm start -- --firefox="/Applications/Zen Browser.app/Contents/MacOS/zen"
@@ -128,21 +105,16 @@ npm start -- --firefox="/Applications/Zen Browser.app/Contents/MacOS/zen"
 | Path | What it does |
 |---|---|
 | [`src/query.js`](src/query.js) | Splits a URL into parameters and puts it back together |
-| [`src/presets.js`](src/presets.js) | Site matching, preset storage, export and import |
+| [`src/presets.js`](src/presets.js) | Site matching, preset storage, ordering, export and import |
 | [`src/tracking.js`](src/tracking.js) | Known tracking parameters |
-| [`src/i18n.js`](src/i18n.js), [`_locales/`](_locales) | Translations |
-| [`src/background.js`](src/background.js) | Draws the address bar button |
-| [`src/popup/`](src/popup) | The panel |
-| [`src/options/`](src/options) | The settings page |
+| [`src/sortable.js`](src/sortable.js) | Drag-to-reorder |
+| [`src/popup/`](src/popup), [`src/options/`](src/options) | The panel and the settings page |
+| [`_locales/`](_locales) | Translations |
 
-Pushing a tag like `v1.0.0` runs the tests and attaches a built zip to a GitHub
+To add a language, copy `_locales/en/messages.json` into a folder named after
+the language code and translate the `message` values; `npm test` checks that
+no key is missing. Pushing a tag like `v1.2.0` builds the zip and publishes a
 release.
-
-### Translations
-
-Strings live in `_locales/<language>/messages.json`. To add a language, copy
-`_locales/en/messages.json` to a new folder named after the language code and
-translate the `message` values.
 
 ## License
 
