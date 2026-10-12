@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "See, edit and save a page's query parameters from the address bar."
+    "message": "View, edit and save the query parameters of the current page."
   },
   "commandDescription": {
     "message": "Open the parameter panel"

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+- The extension summary no longer says "from the address bar", since in
+  Chromium browsers the button is in the toolbar.
+- The readme is no longer packed into the extension.
+
 ## 1.2.0
 
 - Works in Chrome, Edge, Brave and Opera. These browsers don't allow buttons

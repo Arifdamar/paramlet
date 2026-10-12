@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "Sayfanın query parametrelerini adres çubuğundan gör, düzenle ve kaydet."
+    "message": "Açık sayfanın query parametrelerini gör, düzenle ve kaydet."
   },
   "commandDescription": {
     "message": "Parametre panelini aç"
