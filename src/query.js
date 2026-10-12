@@ -102,3 +102,39 @@ export function buildUrl(parsed, rows) {
   const query = kept.map(encodeRow).join("&");
   return query === "" ? parsed.base + parsed.hash : `${parsed.base}?${query}${parsed.hash}`;
 }
+
+// Pairs each wanted parameter with a row of the same key, in order: the first
+// `a` in a group goes with the first `a` in the URL, the second with the second.
+function matchRows(rows, params) {
+  const used = new Set();
+  return params.map(({ key }) => {
+    const match = rows.find((row) => row.key === key && !used.has(row));
+    if (match) used.add(match);
+    return match;
+  });
+}
+
+/**
+ * Rows with `params` laid over them: a key already present gets the new value,
+ * a missing key is added at the end, and every other row is left alone.
+ * The input rows are not modified.
+ *
+ * @param {Row[]} rows
+ * @param {{ key: string, value: string }[]} params
+ * @returns {Row[]}
+ */
+export function mergeParams(rows, params) {
+  const merged = rows.map((row) => ({ ...row }));
+  const matches = matchRows(merged, params);
+  params.forEach(({ key, value }, index) => {
+    if (matches[index]) matches[index].value = value;
+    else merged.push({ source: null, key, value });
+  });
+  return merged;
+}
+
+/** Whether every one of `params` is already in `rows` with the same value. */
+export function containsParams(rows, params) {
+  const matches = matchRows(rows, params);
+  return params.every(({ value }, index) => matches[index]?.value === value);
+}

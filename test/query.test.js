@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildUrl, countParams, decodeComponent, parseUrl } from "../src/query.js";
+import {
+  buildUrl,
+  containsParams,
+  countParams,
+  decodeComponent,
+  mergeParams,
+  parseUrl,
+} from "../src/query.js";
 
 const rowsOf = (parsed) => parsed.params.map((p) => ({ source: p, key: p.key, value: p.value }));
 
@@ -122,4 +129,45 @@ test("setting a value back to its original restores the raw segment", () => {
   const rows = rowsOf(parsed);
   rows[0].value = "a b";
   assert.equal(buildUrl(parsed, rows), "https://example.com/?q=a+b");
+});
+
+test("a group overwrites existing keys, appends missing ones, and leaves the rest", () => {
+  const parsed = parseUrl("https://example.com/?utm_source=x&id=3&q=a+b");
+  const merged = mergeParams(rowsOf(parsed), [
+    { key: "id", value: "7" },
+    { key: "debug", value: "1" },
+  ]);
+  assert.equal(buildUrl(parsed, merged), "https://example.com/?utm_source=x&id=7&q=a+b&debug=1");
+});
+
+test("merging does not modify the rows it was given", () => {
+  const parsed = parseUrl("https://example.com/?id=3");
+  const rows = rowsOf(parsed);
+  mergeParams(rows, [{ key: "id", value: "7" }]);
+  assert.equal(rows[0].value, "3");
+});
+
+test("repeated keys in a group pair up with repeated keys in the URL, in order", () => {
+  const parsed = parseUrl("https://example.com/?tag=a&tag=b");
+  const merged = mergeParams(rowsOf(parsed), [
+    { key: "tag", value: "x" },
+    { key: "tag", value: "y" },
+    { key: "tag", value: "z" },
+  ]);
+  assert.equal(buildUrl(parsed, merged), "https://example.com/?tag=x&tag=y&tag=z");
+});
+
+test("a group whose values are already set leaves the URL unchanged", () => {
+  const href = "https://example.com/?debug=1&id=7";
+  const parsed = parseUrl(href);
+  const params = [{ key: "id", value: "7" }, { key: "debug", value: "1" }];
+  assert.equal(containsParams(rowsOf(parsed), params), true);
+  assert.equal(buildUrl(parsed, mergeParams(rowsOf(parsed), params)), href);
+});
+
+test("a group is not contained when a value differs or a key is missing", () => {
+  const rows = rowsOf(parseUrl("https://example.com/?id=7&tag=a"));
+  assert.equal(containsParams(rows, [{ key: "id", value: "8" }]), false);
+  assert.equal(containsParams(rows, [{ key: "debug", value: "1" }]), false);
+  assert.equal(containsParams(rows, [{ key: "tag", value: "a" }, { key: "tag", value: "a" }]), false);
 });
