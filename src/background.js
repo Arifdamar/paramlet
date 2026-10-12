@@ -1,9 +1,16 @@
-// Keeps the address bar button's icon in step with the page: the number of
-// query parameters, or "?" when there are none. The manifest's show_matches
-// makes the button appear on every web page; this script only draws it.
+// Keeps the extension button's icon in step with the page: the number of
+// query parameters, or "?" when there are none.
+//
+// Firefox puts the button in the address bar (page_action); the manifest's
+// show_matches shows it on every web page. Chromium browsers have no address
+// bar buttons, so there it is the toolbar button (action), switched off on
+// pages that are not web pages.
 
+import "./browser.js";
 import { countParams } from "./query.js";
 import { t } from "./i18n.js";
+
+const button = browser.pageAction ?? browser.action;
 
 const ICON_SIZES = [16, 32];
 const COLOR = "#5b5bd6";
@@ -44,12 +51,16 @@ function describe(count) {
 }
 
 async function refresh(tabId, url) {
-  if (!isWebPage(url)) return;
+  if (!isWebPage(url)) {
+    await button.disable?.(tabId);
+    return;
+  }
   const count = countParams(url);
   const label = count === 0 ? "?" : count > 99 ? "99+" : String(count);
   await Promise.all([
-    browser.pageAction.setIcon({ tabId, imageData: iconFor(label) }),
-    browser.pageAction.setTitle({ tabId, title: describe(count) }),
+    button.enable?.(tabId),
+    button.setIcon({ tabId, imageData: iconFor(label) }),
+    button.setTitle({ tabId, title: describe(count) }),
   ]);
 }
 
@@ -58,9 +69,16 @@ async function refreshAll() {
   await Promise.all(tabs.map((tab) => refresh(tab.id, tab.url)));
 }
 
-browser.tabs.onUpdated.addListener(
-  (tabId, changeInfo, tab) => refresh(tabId, tab.url).catch(console.error),
-  { properties: ["url", "status"] },
-);
+const onTabUpdated = (tabId, changeInfo, tab) => {
+  if (changeInfo.url === undefined && changeInfo.status === undefined) return;
+  refresh(tabId, tab.url).catch(console.error);
+};
+// Firefox can filter the events up front; Chromium rejects the filter
+// argument, and the check in onTabUpdated does the same job there.
+try {
+  browser.tabs.onUpdated.addListener(onTabUpdated, { properties: ["url", "status"] });
+} catch {
+  browser.tabs.onUpdated.addListener(onTabUpdated);
+}
 browser.runtime.onInstalled.addListener(() => refreshAll().catch(console.error));
 browser.runtime.onStartup.addListener(() => refreshAll().catch(console.error));

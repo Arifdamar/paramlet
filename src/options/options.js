@@ -1,3 +1,4 @@
+import "../browser.js";
 import {
   ALL_SITES,
   exportPresets,
@@ -28,7 +29,8 @@ const sitesEl = $("sites");
 const siteTemplate = $("site-template");
 const presetTemplate = $("preset-template");
 
-const COMMAND = "_execute_page_action";
+// Firefox opens the panel with _execute_page_action, Chromium with _execute_action.
+const isPanelCommand = (command) => command.name.startsWith("_execute_");
 const errorText = (error) => error?.message ?? String(error);
 
 let statusTimer;
@@ -56,14 +58,20 @@ function formatShortcut(shortcut) {
 
 async function showShortcut() {
   const commands = await browser.commands.getAll();
-  const shortcut = commands.find((command) => command.name === COMMAND)?.shortcut;
+  const shortcut = commands.find(isPanelCommand)?.shortcut;
   shortcutEl.textContent = shortcut ? formatShortcut(shortcut) : t("shortcutNone");
 }
 
-// Firefox 137+ can open its shortcut editor directly; older versions get directions.
+// Firefox 137+ can open its shortcut editor directly, and Chromium browsers
+// have a shortcuts page an extension may open. Older Firefox gets directions.
+const isFirefox = typeof browser.runtime.getBrowserInfo === "function";
 if (typeof browser.commands.openShortcutSettings === "function") {
   changeShortcutButton.hidden = false;
   changeShortcutButton.addEventListener("click", () => browser.commands.openShortcutSettings());
+} else if (!isFirefox) {
+  const page = navigator.userAgent.includes("Edg/") ? "edge://extensions/shortcuts" : "chrome://extensions/shortcuts";
+  changeShortcutButton.hidden = false;
+  changeShortcutButton.addEventListener("click", () => browser.tabs.create({ url: page }));
 } else {
   shortcutHelpEl.hidden = false;
 }

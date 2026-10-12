@@ -1,3 +1,4 @@
+import "../browser.js";
 import { buildUrl, containsParams, mergeParams, paramsFromText, parseUrl } from "../query.js";
 import {
   ALL_SITES,
