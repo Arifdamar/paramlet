@@ -1,0 +1,155 @@
+{
+  "extensionDescription": {
+    "message": "Sayfanın query parametrelerini adres çubuğundan gör, düzenle ve kaydet."
+  },
+  "commandDescription": {
+    "message": "Parametre panelini aç"
+  },
+  "titleNone": {
+    "message": "Paramlet: query parametresi yok"
+  },
+  "titleOne": {
+    "message": "Paramlet: 1 query parametresi"
+  },
+  "titleMany": {
+    "message": "Paramlet: $1 query parametresi"
+  },
+  "parameters": {
+    "message": "Parametreler"
+  },
+  "fragmentParameters": {
+    "message": "# sonrası parametreler"
+  },
+  "noParameters": {
+    "message": "Bu sayfada query parametresi yok."
+  },
+  "addParameter": {
+    "message": "+ Parametre ekle"
+  },
+  "key": {
+    "message": "Anahtar"
+  },
+  "value": {
+    "message": "Değer"
+  },
+  "removeParameter": {
+    "message": "Parametreyi kaldır"
+  },
+  "trackingParameter": {
+    "message": "Takip parametresi"
+  },
+  "removeTracking": {
+    "message": "Takibi temizle ($1)"
+  },
+  "removeTrackingTitle": {
+    "message": "utm_*, gclid, fbclid ve diğer takip parametrelerini kaldır"
+  },
+  "settings": {
+    "message": "Ayarlar"
+  },
+  "copyUrl": {
+    "message": "URL'yi kopyala"
+  },
+  "copied": {
+    "message": "Kopyalandı"
+  },
+  "apply": {
+    "message": "Uygula"
+  },
+  "applyTitle": {
+    "message": "Yeni sekmede açmak için Ctrl'ye (Mac'te ⌘) basılı tut"
+  },
+  "presets": {
+    "message": "Presetler"
+  },
+  "savePreset": {
+    "message": "Preset kaydet"
+  },
+  "presetName": {
+    "message": "Preset adı"
+  },
+  "includeInPreset": {
+    "message": "Presete ekle"
+  },
+  "allSites": {
+    "message": "Tüm siteler"
+  },
+  "allSitesTag": {
+    "message": "tüm siteler"
+  },
+  "cancel": {
+    "message": "Vazgeç"
+  },
+  "save": {
+    "message": "Kaydet"
+  },
+  "alreadyOnPage": {
+    "message": "Bu sayfada zaten var"
+  },
+  "deletePreset": {
+    "message": "Preseti sil"
+  },
+  "confirmDelete": {
+    "message": "Silinsin mi?"
+  },
+  "savedPreset": {
+    "message": "“$1” kaydedildi."
+  },
+  "updatedPreset": {
+    "message": "“$1” güncellendi."
+  },
+  "deletedPreset": {
+    "message": "“$1” silindi."
+  },
+  "quotaFull": {
+    "message": "Bu site için senkron depolama alanı doldu. Bir preset silip tekrar dene."
+  },
+  "saveFailed": {
+    "message": "Kaydedilemedi: $1"
+  },
+  "loadFailed": {
+    "message": "Kayıtlı presetler yüklenemedi: $1"
+  },
+  "optionsTitle": {
+    "message": "Paramlet ayarları"
+  },
+  "shortcutHeading": {
+    "message": "Klavye kısayolu"
+  },
+  "shortcutCurrent": {
+    "message": "Parametre panelini açar:"
+  },
+  "shortcutNone": {
+    "message": "Atanmamış"
+  },
+  "changeShortcut": {
+    "message": "Kısayolu değiştir"
+  },
+  "shortcutHelp": {
+    "message": "about:addons → dişli menüsü → Manage Extension Shortcuts üzerinden değiştirebilirsin."
+  },
+  "presetsHelp": {
+    "message": "Presetler panelden kaydedilir. Aynı Mozilla hesabıyla giriş yapılmış tarayıcılar arasında, eklenti senkronizasyonu açıksa senkronize olur."
+  },
+  "noPresets": {
+    "message": "Henüz kayıtlı preset yok."
+  },
+  "exportPresets": {
+    "message": "Dışa aktar"
+  },
+  "importPresets": {
+    "message": "İçe aktar"
+  },
+  "exportImportHelp": {
+    "message": "Dışa aktarma bütün presetleri bir dosyaya yazar. İçe aktarılan dosyadaki presetler eklenir; aynı sitede aynı isimli bir preset varsa onun yerine geçer."
+  },
+  "imported": {
+    "message": "$1 preset içe aktarıldı."
+  },
+  "importInvalid": {
+    "message": "Bu dosya bir Paramlet dışa aktarımı değil."
+  },
+  "importFailed": {
+    "message": "İçe aktarılamadı: $1"
+  }
+}

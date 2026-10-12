@@ -3,6 +3,7 @@
 // makes the button appear on every web page; this script only draws it.
 
 import { countParams } from "./query.js";
+import { t } from "./i18n.js";
 
 const ICON_SIZES = [16, 32];
 const COLOR = "#5b5bd6";
@@ -37,9 +38,9 @@ function isWebPage(url) {
 }
 
 function describe(count) {
-  if (count === 0) return "Paramlet: no query parameters";
-  if (count === 1) return "Paramlet: 1 query parameter";
-  return `Paramlet: ${count} query parameters`;
+  if (count === 0) return t("titleNone");
+  if (count === 1) return t("titleOne");
+  return t("titleMany", count);
 }
 
 async function refresh(tabId, url) {

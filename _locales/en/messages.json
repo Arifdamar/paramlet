@@ -1,0 +1,155 @@
+{
+  "extensionDescription": {
+    "message": "See, edit and save a page's query parameters from the address bar."
+  },
+  "commandDescription": {
+    "message": "Open the parameter panel"
+  },
+  "titleNone": {
+    "message": "Paramlet: no query parameters"
+  },
+  "titleOne": {
+    "message": "Paramlet: 1 query parameter"
+  },
+  "titleMany": {
+    "message": "Paramlet: $1 query parameters"
+  },
+  "parameters": {
+    "message": "Parameters"
+  },
+  "fragmentParameters": {
+    "message": "Fragment parameters"
+  },
+  "noParameters": {
+    "message": "No query parameters on this page."
+  },
+  "addParameter": {
+    "message": "+ Add parameter"
+  },
+  "key": {
+    "message": "Key"
+  },
+  "value": {
+    "message": "Value"
+  },
+  "removeParameter": {
+    "message": "Remove parameter"
+  },
+  "trackingParameter": {
+    "message": "Tracking parameter"
+  },
+  "removeTracking": {
+    "message": "Remove tracking ($1)"
+  },
+  "removeTrackingTitle": {
+    "message": "Remove utm_*, gclid, fbclid and other tracking parameters"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "copyUrl": {
+    "message": "Copy URL"
+  },
+  "copied": {
+    "message": "Copied"
+  },
+  "apply": {
+    "message": "Apply"
+  },
+  "applyTitle": {
+    "message": "Hold Ctrl (⌘ on Mac) to open in a new tab"
+  },
+  "presets": {
+    "message": "Presets"
+  },
+  "savePreset": {
+    "message": "Save preset"
+  },
+  "presetName": {
+    "message": "Preset name"
+  },
+  "includeInPreset": {
+    "message": "Include in preset"
+  },
+  "allSites": {
+    "message": "All sites"
+  },
+  "allSitesTag": {
+    "message": "all sites"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "alreadyOnPage": {
+    "message": "Already on this page"
+  },
+  "deletePreset": {
+    "message": "Delete preset"
+  },
+  "confirmDelete": {
+    "message": "Delete?"
+  },
+  "savedPreset": {
+    "message": "Saved “$1”."
+  },
+  "updatedPreset": {
+    "message": "Updated “$1”."
+  },
+  "deletedPreset": {
+    "message": "Deleted “$1”."
+  },
+  "quotaFull": {
+    "message": "Not enough sync storage left for this site. Delete a preset and try again."
+  },
+  "saveFailed": {
+    "message": "Could not save: $1"
+  },
+  "loadFailed": {
+    "message": "Could not load saved presets: $1"
+  },
+  "optionsTitle": {
+    "message": "Paramlet settings"
+  },
+  "shortcutHeading": {
+    "message": "Keyboard shortcut"
+  },
+  "shortcutCurrent": {
+    "message": "Opens the parameter panel:"
+  },
+  "shortcutNone": {
+    "message": "Not set"
+  },
+  "changeShortcut": {
+    "message": "Change shortcut"
+  },
+  "shortcutHelp": {
+    "message": "Change it from about:addons → gear menu → Manage Extension Shortcuts."
+  },
+  "presetsHelp": {
+    "message": "Presets are saved from the panel. They sync between browsers signed in to the same Mozilla account when add-on sync is on."
+  },
+  "noPresets": {
+    "message": "No saved presets yet."
+  },
+  "exportPresets": {
+    "message": "Export"
+  },
+  "importPresets": {
+    "message": "Import"
+  },
+  "exportImportHelp": {
+    "message": "Export saves every preset to a file. Importing a file adds its presets; one with the same name on the same site is replaced."
+  },
+  "imported": {
+    "message": "Imported $1 presets."
+  },
+  "importInvalid": {
+    "message": "This file is not a Paramlet export."
+  },
+  "importFailed": {
+    "message": "Could not import: $1"
+  }
+}
