@@ -93,13 +93,13 @@
     "message": "Delete?"
   },
   "savedPreset": {
-    "message": "Saved “$1”."
+    "message": "Saved \"$1\"."
   },
   "updatedPreset": {
-    "message": "Updated “$1”."
+    "message": "Updated \"$1\"."
   },
   "deletedPreset": {
-    "message": "Deleted “$1”."
+    "message": "Deleted \"$1\"."
   },
   "quotaFull": {
     "message": "Not enough sync storage left for this site. Delete a preset and try again."

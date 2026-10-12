@@ -1,11 +1,8 @@
-<div align="center">
-
 # Paramlet
 
-**Query parameters, without squinting at the URL.**
-
-See, edit, clean and save a page's query parameters from the address bar.
-For Firefox and Firefox-based browsers like [Zen](https://zen-browser.app).
+A Firefox extension for reading and editing the query parameters of the page
+you are on. It works in Firefox and in browsers built on it, like
+[Zen](https://zen-browser.app).
 
 [![CI](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml/badge.svg)](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Arifdamar/paramlet)](https://github.com/Arifdamar/paramlet/releases/latest)
@@ -13,108 +10,123 @@ For Firefox and Firefox-based browsers like [Zen](https://zen-browser.app).
 
 ![Paramlet demo](docs/demo.gif)
 
-[Watch the full video (47 s)](docs/paramlet-demo.mp4)
+There is also a [47 second video](docs/paramlet-demo.mp4) with every feature.
 
-</div>
+## Why
 
-## What it is for
+Things I use it for:
 
-- **Share clean links.** A link from a newsletter or an ad comes with
-  `utm_source`, `gclid`, `fbclid` and friends. **Remove tracking** strips them
-  in one click and keeps the parameters the page actually needs.
-- **Flip flags while you build.** Turn `debug=1&log=verbose` on and off on
-  `localhost:5173`, try another `lang`, `theme` or `variant`, without editing a
-  200-character URL by hand. Save the combination as a preset and apply it with
-  a single key.
-- **Read what a URL is doing.** Long report links, search pages and redirects
-  become a readable list, with values decoded (`hello%20world` reads as
-  `hello world`) and a search field when the list gets long.
-- **Work with single-page apps.** Parameters after `#` (`#/orders?page=3`,
-  `#access_token=…`) get their own section and can be edited like the rest.
+- Cleaning `utm_source`, `gclid` and `fbclid` out of a link before I send it
+  to someone.
+- Turning `debug=1` on and off on `localhost` without editing the address by
+  hand.
+- Reading a 300 character report URL as a list instead of one long line.
+- Changing `page=3` in an app that keeps its parameters after the `#`.
 
-## Features
+## What it does
 
-| | |
-|---|---|
-| **Address bar button** | On every web page, showing how many parameters it has (or `?` for none). |
-| **Edit** | Change, add and remove parameters. **Apply** loads the result; hold <kbd>Ctrl</kbd>/<kbd>⌘</kbd> to open it in a new tab. **Copy URL** copies it. |
-| **Paste** | Paste a whole URL, `?a=1&b=2`, or `key=value` lines into a key field to add them all at once. |
-| **Remove tracking** | Known tracking parameters are shown dimmed and removed in one click. The list is in [`src/tracking.js`](src/tracking.js). |
-| **Presets** | Save parameters for the current site or for every site. Apply with a click or <kbd>1</kbd>–<kbd>9</kbd>, reorder by dragging. A ✓ marks presets already on the page. |
-| **Search** | Appears once a list has 8 or more items. Filters parameters by key or value and presets by name or contents. |
-| **Settings page** | Every site's presets in one place: search, reorder, delete, export to a file and import back. |
-| **Languages** | English and Turkish. |
+A button in the address bar shows how many parameters the page has. It shows
+`?` when there are none. Clicking it (or pressing <kbd>Alt</kbd>+<kbd>Q</kbd>,
+<kbd>Ctrl</kbd>+<kbd>Q</kbd> on macOS) opens a panel with one row per
+parameter.
 
-### Your URL stays your URL
+In the panel you can:
 
-Most tools rebuild the whole query string when you change one thing: `%20`
-turns into `+`, `?debug` turns into `debug=`, characters get re-encoded, and
-some servers notice. Paramlet only rewrites the parameters you actually
-changed. Everything else goes back exactly as it was written, including
-repeated keys (`tag=a&tag=b`) and empty segments.
+- edit any key or value, delete a row, or add a new one, then press **Apply**
+  or <kbd>Enter</kbd> to load the new URL (hold <kbd>Ctrl</kbd> or
+  <kbd>⌘</kbd> to open it in a new tab instead);
+- copy the edited URL without loading it;
+- paste a full URL, a query string like `?a=1&b=2`, or `key=value` lines into a
+  key field, and every parameter in it becomes its own row;
+- remove all known tracking parameters with **Remove tracking**. They are
+  greyed out in the list so you can see which ones they are. The list lives in
+  [`src/tracking.js`](src/tracking.js);
+- search, once a list has 8 items or more. Press <kbd>/</kbd> to get to the
+  search box.
 
-## Keyboard
+Values are shown decoded, so `hello%20world` appears as `hello world`. When the
+URL is built again, only the parameters you changed are encoded. Everything
+else is copied over as it was, so `%20` does not turn into `+`, a bare `?debug`
+does not become `debug=`, and repeated keys like `tag=a&tag=b` are kept. Some
+servers care about the difference.
 
-| Key | Does |
-|---|---|
-| <kbd>Alt</kbd>+<kbd>Q</kbd> (<kbd>Ctrl</kbd>+<kbd>Q</kbd> on macOS) | Open the panel. Change it on the settings page. |
-| <kbd>Enter</kbd> | Apply. With <kbd>Ctrl</kbd>/<kbd>⌘</kbd>: open in a new tab. |
-| <kbd>1</kbd>–<kbd>9</kbd> | Apply that preset (not while typing in a field). |
-| <kbd>/</kbd> | Jump to search. |
-| <kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd> | Move the focused preset up or down. |
+### Presets
+
+A preset is a named set of parameters, for example `debug=1&log=verbose` for
+your dev server. Click **Save preset**, untick the parameters you don't want,
+and give it a name. Tick **All sites** if it should show up everywhere.
+
+On a later visit, click the preset or press its number (<kbd>1</kbd> to
+<kbd>9</kbd>) to apply it. Keys the page already has get the preset's value,
+missing keys are added, and nothing else changes. A ✓ next to a preset means
+the page already has all of its values. Drag a preset by its handle to change
+the order, or use <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd>.
+
+`www.example.com` and `example.com` share presets. Subdomains and ports do
+not, so `localhost:3000` and `localhost:5173` each keep their own.
+
+Presets are saved in Firefox sync storage. If you are signed in to a Mozilla
+account with add-on sync turned on, they show up on your other computers too.
+
+### Settings page
+
+The gear button in the panel opens it. It lists the presets of every site, lets
+you search, reorder and delete them, and can export everything to a JSON file
+and import it again. Importing a preset with the same name as an existing one
+on the same site replaces it. The keyboard shortcut can be changed there as
+well.
+
+The extension is in English and Turkish.
 
 ## Install
 
-Paramlet is not on addons.mozilla.org yet. Until then:
+It is not on addons.mozilla.org yet. Until it is:
 
-1. Download `paramlet-<version>.zip` from the
+1. Download the zip from the
    [latest release](https://github.com/Arifdamar/paramlet/releases/latest).
-2. Open `about:debugging#/runtime/this-firefox` in Firefox or Zen.
-3. Click **Load Temporary Add-on…** and pick the zip.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on** and pick the zip.
 
-A temporary add-on is removed when the browser restarts.
+Firefox removes temporary add-ons when it restarts.
 
 ## Privacy
 
-Paramlet makes no network requests and collects no data. It asks for two
-permissions:
-
-- **tabs**, to read the current page's URL and load the edited one;
-- **storage**, to keep your presets. They are stored in the browser's sync
-  storage, so with add-on sync on in your Mozilla account they follow you to
-  your other devices.
+Paramlet does not make network requests and does not collect anything. It asks
+for two permissions: `tabs` to read the current URL and load the edited one,
+and `storage` to keep your presets.
 
 ## Development
 
-Needs Node.js 22 or newer.
+You need Node.js 22 or newer.
 
 ```sh
 npm install
 npm test        # unit tests
 npm run lint    # web-ext lint
-npm start       # Firefox with the extension loaded
-npm run build   # zip in web-ext-artifacts/
+npm start       # opens Firefox with the extension loaded
+npm run build   # writes a zip to web-ext-artifacts/
 ```
 
-Running it in Zen on macOS:
+To run it in Zen on macOS:
 
 ```sh
 npm start -- --firefox="/Applications/Zen Browser.app/Contents/MacOS/zen"
 ```
 
-| Path | What it does |
-|---|---|
-| [`src/query.js`](src/query.js) | Splits a URL into parameters and puts it back together |
-| [`src/presets.js`](src/presets.js) | Site matching, preset storage, ordering, export and import |
-| [`src/tracking.js`](src/tracking.js) | Known tracking parameters |
-| [`src/sortable.js`](src/sortable.js) | Drag-to-reorder |
-| [`src/popup/`](src/popup), [`src/options/`](src/options) | The panel and the settings page |
-| [`_locales/`](_locales) | Translations |
+Where things are:
 
-To add a language, copy `_locales/en/messages.json` into a folder named after
-the language code and translate the `message` values; `npm test` checks that
-no key is missing. Pushing a tag like `v1.2.0` builds the zip and publishes a
-release.
+- `src/query.js` splits a URL into parameters and puts it back together.
+- `src/presets.js` has site matching, preset storage, ordering, export and
+  import.
+- `src/tracking.js` is the list of tracking parameters.
+- `src/sortable.js` is the drag to reorder code.
+- `src/popup/` is the panel, `src/options/` the settings page.
+- `_locales/` has the translations.
+
+To add a language, copy `_locales/en/messages.json` into a new folder named
+after the language code and translate the `message` values. `npm test` fails
+if a key is missing. Pushing a tag like `v1.2.0` builds the zip and creates a
+GitHub release.
 
 ## License
 

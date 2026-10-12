@@ -1,6 +1,6 @@
 // Translated strings come from _locales/<language>/messages.json.
 
-/** The message for `key`, with `$1`, `$2`… replaced by `substitutions`. */
+/** The message for `key`, with `$1`, `$2` and so on replaced by `substitutions`. */
 export const t = (key, ...substitutions) => browser.i18n.getMessage(key, substitutions.map(String));
 
 const ATTRIBUTES = ["title", "placeholder", "aria-label"];

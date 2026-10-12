@@ -382,8 +382,8 @@ function renderPresets() {
   refresh();
 }
 
-// Presets of this site and presets for all sites are ordered separately; the
-// order sets the 1–9 shortcuts.
+// Presets of this site and presets for all sites are ordered separately. The
+// order decides which preset each number key applies.
 makeSortable(presetListEl, {
   grip: ".grip",
   group: (item) => item.dataset.scope,

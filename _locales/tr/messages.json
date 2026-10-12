@@ -93,13 +93,13 @@
     "message": "Silinsin mi?"
   },
   "savedPreset": {
-    "message": "“$1” kaydedildi."
+    "message": "\"$1\" kaydedildi."
   },
   "updatedPreset": {
-    "message": "“$1” güncellendi."
+    "message": "\"$1\" güncellendi."
   },
   "deletedPreset": {
-    "message": "“$1” silindi."
+    "message": "\"$1\" silindi."
   },
   "quotaFull": {
     "message": "Bu site için senkron depolama alanı doldu. Bir preset silip tekrar dene."

@@ -153,7 +153,7 @@ async function showPresets() {
       element.querySelector(".site-name").textContent = siteLabel(site);
       list.classList.toggle("filtered", filter !== "");
       list.append(...presets.map((preset) => presetElement(site, preset, bySite[site])));
-      // The order sets the panel's 1–9 shortcuts. A filtered list is not reordered.
+      // The order decides the panel's number keys. A filtered list is not reordered.
       makeSortable(list, {
         grip: ".grip",
         enabled: () => filter === "",

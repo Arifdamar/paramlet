@@ -57,9 +57,9 @@ function splitUrl(href) {
 }
 
 // Single-page apps keep parameters in the fragment, either after a route
-// (`#/route?x=1`) or as the whole fragment (`#access_token=…&state=…`). A plain
-// anchor (`#top`), a route without parameters (`#/route`) and a text fragment
-// (`#:~:text=…`) have none.
+// (`#/route?x=1`) or as the whole fragment (`#access_token=abc&state=xyz`). A
+// plain anchor (`#top`), a route without parameters (`#/route`) and a text
+// fragment (`#:~:text=hello`) have none.
 function splitHash(hash) {
   const queryAt = hash.indexOf("?");
   if (queryAt !== -1) return { prefix: hash.slice(0, queryAt + 1), query: hash.slice(queryAt + 1) };
