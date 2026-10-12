@@ -44,6 +44,22 @@ section {
   margin: 12px 0 0;
 }
 
+.search {
+  width: 100%;
+  margin-top: 16px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: inherit;
+  font: inherit;
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .shortcut-line {
   display: flex;
   align-items: center;

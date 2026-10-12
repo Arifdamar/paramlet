@@ -45,6 +45,18 @@ export async function savePresets(site, presets) {
   else await browser.storage.sync.set({ [key]: presets });
 }
 
+/**
+ * Saves several sites' presets in one write, so either all of them are stored
+ * or, if storage is full, none are.
+ *
+ * @param {PresetsBySite} bySite
+ */
+export async function savePresetsBySite(bySite) {
+  await browser.storage.sync.set(
+    Object.fromEntries(Object.entries(bySite).map(([site, presets]) => [PREFIX + site, presets])),
+  );
+}
+
 /** @returns {Promise<PresetsBySite>} */
 export async function loadAllPresets() {
   const stored = await browser.storage.sync.get(null);

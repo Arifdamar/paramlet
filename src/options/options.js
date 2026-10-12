@@ -5,6 +5,7 @@ import {
   mergePresets,
   readExport,
   savePresets,
+  savePresetsBySite,
 } from "../presets.js";
 import { localize, t } from "../i18n.js";
 
@@ -18,7 +19,9 @@ const exportButton = $("export");
 const importButton = $("import");
 const importFileInput = $("import-file");
 const statusEl = $("status");
+const searchInput = $("search");
 const noPresetsEl = $("no-presets");
+const noMatchesEl = $("no-matches");
 const sitesEl = $("sites");
 const siteTemplate = $("site-template");
 const presetTemplate = $("preset-template");
@@ -103,22 +106,46 @@ function presetElement(site, preset, presets) {
   return element;
 }
 
+let filter = "";
+const includesFilter = (text) => text.toLowerCase().includes(filter);
+const siteLabel = (site) => (site === ALL_SITES ? t("allSites") : site);
+
+// A site whose name matches shows all its presets; otherwise only the presets
+// whose name or parameters match are shown.
+function matchingPresets(site, presets) {
+  if (filter === "" || includesFilter(siteLabel(site))) return presets;
+  return presets.filter(
+    (preset) => includesFilter(preset.name) || includesFilter(describeParams(preset.params)),
+  );
+}
+
 async function showPresets() {
   const bySite = await loadAllPresets();
   const sites = Object.keys(bySite).sort(siteOrder);
   noPresetsEl.hidden = sites.length > 0;
+  searchInput.hidden = sites.length === 0;
   exportButton.disabled = sites.length === 0;
+
+  const shown = sites
+    .map((site) => ({ site, presets: matchingPresets(site, bySite[site]) }))
+    .filter(({ presets }) => presets.length > 0);
+  noMatchesEl.hidden = sites.length === 0 || shown.length > 0;
   sitesEl.replaceChildren(
-    ...sites.map((site) => {
+    ...shown.map(({ site, presets }) => {
       const element = siteTemplate.content.firstElementChild.cloneNode(true);
-      element.querySelector(".site-name").textContent = site === ALL_SITES ? t("allSites") : site;
+      element.querySelector(".site-name").textContent = siteLabel(site);
       element
         .querySelector(".preset-list")
-        .append(...bySite[site].map((preset) => presetElement(site, preset, bySite[site])));
+        .append(...presets.map((preset) => presetElement(site, preset, bySite[site])));
       return element;
     }),
   );
 }
+
+searchInput.addEventListener("input", () => {
+  filter = searchInput.value.trim().toLowerCase();
+  showPresets();
+});
 
 exportButton.addEventListener("click", async () => {
   const blob = new Blob([exportPresets(await loadAllPresets())], { type: "application/json" });
@@ -144,10 +171,11 @@ importFileInput.addEventListener("change", async () => {
   }
   const { merged, changedSites, count } = mergePresets(await loadAllPresets(), imported);
   try {
-    for (const site of changedSites) await savePresets(site, merged[site]);
+    // One write for every site, so a full storage rejects the whole import
+    // instead of leaving half of it behind.
+    await savePresetsBySite(Object.fromEntries(changedSites.map((site) => [site, merged[site]])));
   } catch (error) {
     showStatus(t("importFailed", errorText(error)), { error: true });
-    await showPresets();
     return;
   }
   showStatus(t("imported", count));
