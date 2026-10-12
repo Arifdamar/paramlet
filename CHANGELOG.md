@@ -2,6 +2,10 @@
 
 ## 1.1.0
 
+- Drag presets by their handle to reorder them, in the panel or on the
+  settings page; the order sets the <kbd>1</kbd>–<kbd>9</kbd> shortcuts.
+  <kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd> do the same from
+  the keyboard.
 - Search: once a list has 8 or more items, a search field filters parameters
   (by key or value) and presets (by name or parameters). Press <kbd>/</kbd> to
   jump to it. The settings page can search sites and presets too.

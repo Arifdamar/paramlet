@@ -1,0 +1,46 @@
+/* Drag handles and drag feedback for lists made sortable by sortable.js. */
+
+.grip {
+  flex: none;
+  width: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+  text-align: center;
+  cursor: grab;
+  opacity: 0;
+  touch-action: none;
+  user-select: none;
+}
+
+li:hover > .grip,
+li:focus-within > .grip,
+.sorting .dragging > .grip {
+  opacity: 1;
+}
+
+.filtered .grip {
+  visibility: hidden;
+}
+
+.sorting {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.sorting > li {
+  transition: transform 0.15s ease;
+}
+
+.sorting > li.dragging {
+  position: relative;
+  z-index: 1;
+  border-radius: 6px;
+  background: var(--field-focus);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  transition: none;
+}
+
+.sorting > li.dragging > .grip {
+  cursor: grabbing;
+}

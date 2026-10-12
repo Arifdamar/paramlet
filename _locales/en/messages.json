@@ -160,5 +160,8 @@
   },
   "noMatches": {
     "message": "No matches."
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder (or Alt+↑ / Alt+↓)"
   }
 }

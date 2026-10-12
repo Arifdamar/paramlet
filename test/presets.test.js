@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { exportPresets, mergePresets, readExport, siteOf, upsertPreset } from "../src/presets.js";
+import {
+  exportPresets,
+  mergePresets,
+  movePreset,
+  readExport,
+  siteOf,
+  upsertPreset,
+} from "../src/presets.js";
 
 test("www and the bare domain are the same site", () => {
   assert.equal(siteOf("https://www.example.com/a?b=1"), "example.com");
@@ -86,4 +93,18 @@ test("importing adds new presets and replaces ones with the same name on the sam
   });
   assert.deepEqual(changedSites, ["example.com", "*"]);
   assert.equal(count, 2);
+});
+
+test("moving a preset keeps the others in order", () => {
+  const [a, b, c, d] = ["a", "b", "c", "d"].map((name) => ({ name, params: [] }));
+  assert.deepEqual(movePreset([a, b, c, d], 0, 2), [b, c, a, d]);
+  assert.deepEqual(movePreset([a, b, c, d], 3, 0), [d, a, b, c]);
+  assert.deepEqual(movePreset([a, b, c, d], 1, 3), [a, c, d, b]);
+});
+
+test("moving to the same or an impossible place changes nothing", () => {
+  const list = [{ name: "a", params: [] }, { name: "b", params: [] }];
+  for (const [from, to] of [[0, 0], [0, 2], [-1, 0], [1, 1.5]]) {
+    assert.equal(movePreset(list, from, to), list, `${from} → ${to}`);
+  }
 });

@@ -160,5 +160,8 @@
   },
   "noMatches": {
     "message": "Eşleşme yok."
+  },
+  "dragToReorder": {
+    "message": "Sıralamak için sürükle (ya da Alt+↑ / Alt+↓)"
   }
 }

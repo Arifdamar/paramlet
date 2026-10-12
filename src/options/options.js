@@ -3,11 +3,13 @@ import {
   exportPresets,
   loadAllPresets,
   mergePresets,
+  movePreset,
   readExport,
   savePresets,
   savePresetsBySite,
 } from "../presets.js";
 import { localize, t } from "../i18n.js";
+import { makeSortable } from "../sortable.js";
 
 localize();
 
@@ -133,13 +135,35 @@ async function showPresets() {
   sitesEl.replaceChildren(
     ...shown.map(({ site, presets }) => {
       const element = siteTemplate.content.firstElementChild.cloneNode(true);
+      const list = element.querySelector(".preset-list");
       element.querySelector(".site-name").textContent = siteLabel(site);
-      element
-        .querySelector(".preset-list")
-        .append(...presets.map((preset) => presetElement(site, preset, bySite[site])));
+      list.classList.toggle("filtered", filter !== "");
+      list.append(...presets.map((preset) => presetElement(site, preset, bySite[site])));
+      // The order sets the panel's 1–9 shortcuts. A filtered list is not reordered.
+      makeSortable(list, {
+        grip: ".grip",
+        enabled: () => filter === "",
+        onMove: (from, to) => movePresetOf(site, bySite[site], from, to),
+      });
+      list.dataset.site = site;
       return element;
     }),
   );
+}
+
+async function movePresetOf(site, presets, from, to) {
+  const keyboard = sitesEl.contains(document.activeElement);
+  try {
+    await savePresets(site, movePreset(presets, from, to));
+  } catch (error) {
+    showStatus(t("saveFailed", errorText(error)), { error: true });
+    return;
+  }
+  await showPresets();
+  if (keyboard) {
+    const list = [...sitesEl.querySelectorAll(".preset-list")].find((element) => element.dataset.site === site);
+    list?.children[to]?.querySelector(".delete").focus();
+  }
 }
 
 searchInput.addEventListener("input", () => {

@@ -1,5 +1,13 @@
 import { buildUrl, containsParams, mergeParams, paramsFromText, parseUrl } from "../query.js";
-import { ALL_SITES, loadPresets, savePresets, siteOf, upsertPreset } from "../presets.js";
+import {
+  ALL_SITES,
+  loadPresets,
+  movePreset,
+  savePresets,
+  siteOf,
+  upsertPreset,
+} from "../presets.js";
+import { makeSortable } from "../sortable.js";
 import { isTrackingKey } from "../tracking.js";
 import { localize, t } from "../i18n.js";
 
@@ -39,8 +47,9 @@ const SHORTCUTS = 9;
 // The search field appears once any list is this long.
 const SEARCH_THRESHOLD = 8;
 // Firefox caps a panel at 600px; past that the whole panel would scroll and
-// the buttons would leave the screen. The lists share what is left instead.
-const PANEL_MAX_HEIGHT = 600;
+// the buttons would leave the screen. The lists share what is left instead,
+// with some room kept for the panel's own border and rounding.
+const PANEL_MAX_HEIGHT = 580;
 // No list is squeezed below this while it has content to show (about two rows).
 const LIST_MIN_HEIGHT = 58;
 
@@ -139,6 +148,8 @@ function applyFilter() {
   entries.forEach(({ preset }, index) => {
     presetListEl.children[index].hidden = !presetMatches(preset);
   });
+  // Reordering a filtered list would be guesswork about the hidden presets.
+  presetListEl.classList.toggle("filtered", filter !== "");
   refresh();
 }
 
@@ -331,6 +342,7 @@ function presetElement({ preset, scope }, index) {
   element.querySelector(".params-summary").textContent = describeParams(preset.params);
   element.querySelector(".scope").hidden = scope !== ALL_SITES;
   element.hidden = !presetMatches(preset);
+  element.dataset.scope = scope;
   // One parameter per line, so a long preset can be read in full on hover.
   applyPresetButton.title = [
     preset.name,
@@ -369,6 +381,20 @@ function renderPresets() {
   presetListEl.replaceChildren(...entries.map(presetElement));
   refresh();
 }
+
+// Presets of this site and presets for all sites are ordered separately; the
+// order sets the 1–9 shortcuts.
+makeSortable(presetListEl, {
+  grip: ".grip",
+  group: (item) => item.dataset.scope,
+  enabled: () => filter === "" && !saving,
+  onMove: async (from, to, scope) => {
+    if (!(await storePresets(scope, movePreset(presetsBySite[scope], from, to)))) return;
+    // Keep the keyboard on the preset that moved.
+    const moved = [...presetListEl.children].filter((item) => item.dataset.scope === scope)[to];
+    if (document.activeElement === document.body) moved?.querySelector(".preset-apply").focus();
+  },
+});
 
 // Number keys apply presets and "/" jumps to the search, but never while the
 // user is typing.

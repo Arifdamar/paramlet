@@ -81,6 +81,20 @@ export function upsertPreset(presets, preset) {
   return index === -1 ? [...presets, preset] : presets.with(index, preset);
 }
 
+/**
+ * The list with the preset at `from` moved to `to`; the others keep their
+ * order. Out-of-range positions leave the list as it is.
+ *
+ * @param {Preset[]} presets
+ */
+export function movePreset(presets, from, to) {
+  if (from === to || ![from, to].every((i) => Number.isInteger(i) && i >= 0 && i < presets.length)) {
+    return presets;
+  }
+  const next = presets.toSpliced(from, 1);
+  return next.toSpliced(to, 0, presets[from]);
+}
+
 /** The file contents for an export of every preset. */
 export function exportPresets(bySite) {
   return JSON.stringify({ format: EXPORT_FORMAT, version: EXPORT_VERSION, presets: bySite }, null, 2);
