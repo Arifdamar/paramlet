@@ -6,8 +6,10 @@
 
 View, edit and save the query parameters of the current page.
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Add%20to%20Chrome-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/paramlet/imffefhhfgfbojilfkhpgpljklggcbfc)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Get%20the%20add--on-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org/firefox/addon/paramlet/)
-[![Chrome, Edge, Brave, Opera](https://img.shields.io/badge/Chrome%20%2F%20Edge%20%2F%20Brave%20%2F%20Opera-Download-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/Arifdamar/paramlet/releases/latest)
+
+[![Chrome Web Store version](https://img.shields.io/chrome-web-store/v/imffefhhfgfbojilfkhpgpljklggcbfc?label=chrome%20web%20store)](https://chromewebstore.google.com/detail/paramlet/imffefhhfgfbojilfkhpgpljklggcbfc)
 
 [![CI](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml/badge.svg)](https://github.com/Arifdamar/paramlet/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Arifdamar/paramlet)](https://github.com/Arifdamar/paramlet/releases/latest)
@@ -49,13 +51,25 @@ there the button lives in the toolbar. Everything else works the same.
 
 ## Installation
 
-### Firefox and Zen
-
-Install from [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/paramlet/).
-
 ### Chrome, Edge, Brave and Opera
 
-Store listings are on the way. Until then:
+Install from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/paramlet/imffefhhfgfbojilfkhpgpljklggcbfc).
+
+- **Brave** installs from the Chrome Web Store directly.
+- **Edge** asks you to turn on "Allow extensions from other stores" first.
+- **Opera** needs the "Install Chrome Extensions" add-on.
+
+### Firefox and Zen
+
+Paramlet is in review on
+[Firefox Add-ons](https://addons.mozilla.org/firefox/addon/paramlet/). Until it
+is listed, download `paramlet-<version>-firefox.zip` from the
+[latest release](https://github.com/Arifdamar/paramlet/releases/latest), open
+`about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on** and
+select the zip. Temporary add-ons are removed when the browser restarts.
+
+### From source
 
 1. Download `paramlet-<version>-chromium.zip` from the
    [latest release](https://github.com/Arifdamar/paramlet/releases/latest)
